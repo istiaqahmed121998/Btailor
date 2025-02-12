@@ -23,13 +23,13 @@ public class ProfileModel {
     private String name;
     @Column(unique = true, nullable = false)
     private String email;
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = true)
     private String phone;
-
+    @Column(unique = true, nullable = true)
     private String address;
 
-    @OneToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+
+    @OneToOne(mappedBy = "profile")
     private UserModel user; // ✅ This field was missing!
     public void setId(Long id) {
         this.id = id;

@@ -26,7 +26,8 @@ public class UserModel {
     @Column(nullable = false)
     private Role role;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "profile_id", referencedColumnName = "id")
     private ProfileModel profile;
 
     @Column(nullable = false, updatable = false)

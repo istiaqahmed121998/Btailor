@@ -1,6 +1,9 @@
 package com.backend.btailor.domain.User;
 
+import com.backend.btailor.exception.ValidationException;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,9 +22,12 @@ public class UserController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<UserDTO> createUser(@RequestBody UserModel user) {
-        UserDTO userInformation = userService.createUser(user);
-        return ResponseEntity.ok(userInformation);
+    public ResponseEntity<UserDTO> registerUser(@RequestBody @Valid UserProfileRequest request, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            throw new ValidationException("Invalid User Data", bindingResult);
+        }
+         userService.createUser(request);
+        return null;
     }
 
     @PutMapping("/{id}")

@@ -59,6 +59,11 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -77,9 +82,9 @@
                 <artifactId>flyway-maven-plugin</artifactId>
                 <version>8.0.0</version>
                 <configuration>
-                    <url>jdbc:postgresql://localhost:5432/btailor</url>
-                    <user>${spring.datasource.username}</user>
-                    <password>${spring.datasource.password}</password>
+                    <url>jdbc:postgresql://ep-dry-frost-a5mysqyy-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require</url>
+                    <user>neondb_owner</user>
+                    <password>npg_egt3Q8bFWNcZ</password>
                     <locations>
                         <location>classpath:db/migration</location>
                     </locations>
