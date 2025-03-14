@@ -1,15 +1,23 @@
-package com.backend.btailor.domain.User;
+package com.backend.btailor.Domain.User;
 
-import com.backend.btailor.domain.Profile.ProfileDTO;
-import com.backend.btailor.domain.Profile.ProfileModel;
+import com.backend.btailor.Domain.Profile.ProfileDTO;
+import com.backend.btailor.Domain.Role.RoleRepository;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+
 @Service
-public class UserService {
-
+public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
-
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
         this.userRepository = userRepository;
     }
     public UserDTO getUserById(Long id) {
@@ -20,26 +28,6 @@ public class UserService {
         else{
             throw new RuntimeException("User not found");
         }
-
-    }
-
-    public UserDTO createUser(UserProfileRequest request) {
-        UserModel user = new UserModel();
-        user.setUsername(request.getUsername());
-        user.setPassword(request.getPassword());
-        user.setRole(UserModel.Role.valueOf("ADMIN"));
-        ProfileModel profile = new ProfileModel();
-        profile.setName(request.getName());
-        profile.setEmail(request.getEmail());
-        profile.setEmail(request.getEmail());
-        user.setProfile(profile);
-        UserModel userinfo= userRepository.save(user);
-        if(userinfo != null) {
-           return convertToDTO(userinfo);
-        }else{
-           new RuntimeException("User is not created");
-        }
-        return null;
     }
     public UserDTO convertToDTO(UserModel user) {
         ProfileDTO profileDTO=new ProfileDTO();
@@ -52,16 +40,13 @@ public class UserService {
         return UserDTO.builder()
                 .id(user.getId())
                 .username(user.getUsername())
-                .role(user.getRole().name())
                 .profile(profileDTO)
                 .build();
     }
-
     public UserDTO updateUser(Long id,UserModel user) {
         if(userRepository.existsById(id)) {
             UserModel existUser= userRepository.findById(id).get();
             existUser.setUsername(user.getUsername());
-            existUser.setRole(user.getRole());
             existUser.setPassword(user.getPassword());
             UserModel updatedUser=userRepository.save(existUser);
             return convertToDTO(updatedUser);
@@ -73,13 +58,22 @@ public class UserService {
             UserModel existUser= userRepository.findById(id).get();
             if (user.getUsername()!=null)
                 existUser.setUsername(user.getUsername());
-            if (user.getRole()!=null)
-                existUser.setRole(user.getRole());
             if (user.getPassword()!=null)
                 existUser.setPassword(user.getPassword());
             UserModel updatedUser=userRepository.save(existUser);
             return convertToDTO(updatedUser);
         }
         return null;
+    }
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        UserModel user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+
+        List<GrantedAuthority> authorities = user.getRoles().stream()
+                .map(role -> new SimpleGrantedAuthority(role.getName())) // Ensure role name matches DB
+                .collect(Collectors.toList());
+
+        return user;
     }
 }

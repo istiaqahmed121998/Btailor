@@ -1,6 +1,6 @@
-package com.backend.btailor.domain.Profile;
+package com.backend.btailor.Domain.Profile;
 
-import com.backend.btailor.domain.User.UserModel;
+import com.backend.btailor.Domain.User.UserModel;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 @Setter
 @Builder
 public class ProfileModel {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -27,29 +26,17 @@ public class ProfileModel {
     private String phone;
     @Column(unique = true, nullable = true)
     private String address;
-
-
     @OneToOne(mappedBy = "profile")
-    private UserModel user; // ✅ This field was missing!
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getId() {
-        return id;
-    }
+    private UserModel user;
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
-
     @Column(nullable = false)
     private LocalDateTime updatedAt;
-
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
-
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();

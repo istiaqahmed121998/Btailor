@@ -1,4 +1,4 @@
-package com.backend.btailor.domain.Profile;
+package com.backend.btailor.Domain.Profile;
 
 
 import org.springframework.stereotype.Service;

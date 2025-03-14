@@ -1,6 +1,7 @@
 package com.backend.btailor.exception;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -8,12 +9,22 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.http.HttpStatus;
-
 import java.util.HashMap;
 import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+    // ❌ Handle Unauthorized Access
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ResponseEntity<Map<String, String>> handleAccessDeniedException(AccessDeniedException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("timestamp", ex.getMessage());
+        response.put("error", "Access Denied");
+        response.put("status", "403");
+        response.put("message", "You do not have permission to access this resource.");
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
     // ❌ Handle Not Found Exceptions
     @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -42,7 +53,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleCustomValidationException(ValidationException ex) {
         Map<String, String> errors = new HashMap<>();
         errors.put("error", "Validation Failed");
-
         BindingResult bindingResult = ex.getBindingResult();
         if (bindingResult != null) {
             for (FieldError error : bindingResult.getFieldErrors()) {
@@ -51,7 +61,6 @@ public class GlobalExceptionHandler {
         } else {
             errors.put("message", ex.getMessage()); // Fallback message
         }
-
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
     @ExceptionHandler(Exception.class)
@@ -62,5 +71,4 @@ public class GlobalExceptionHandler {
         response.put("message", ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
-
 }
