@@ -1,7 +1,6 @@
 package com.backend.btailor.Domain.User;
 
 import com.backend.btailor.Domain.Profile.ProfileDTO;
-import com.backend.btailor.Domain.Role.RoleRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,14 +9,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 
 @Service
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
-    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
+    public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
     public UserDTO getUserById(Long id) {

@@ -20,7 +20,6 @@ public class AuthController {
 
     @PostMapping("/user/signup")
     public ResponseEntity<TokenResponse> registerUser(@RequestBody @Valid UserProfileRequest request, BindingResult bindingResult) {
-        System.out.println("registerUser");
         if (bindingResult.hasErrors()) {
             throw new ValidationException("Invalid User Data", bindingResult);
         }
@@ -38,7 +37,6 @@ public class AuthController {
     }
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> loginUser(@RequestBody @Valid AuthRequest authRequest, BindingResult bindingResult) {
-        System.out.println("loginUser");
         if (bindingResult.hasErrors()) {
             throw new ValidationException("Invalid User Data", bindingResult);
         }

@@ -1,5 +1,6 @@
 package com.backend.btailor.Domain.User;
 
+import com.backend.btailor.utils.JwtUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/user")
 public class UserController {
     UserService userService;
-    public UserController(UserService userService) {
+    public UserController(UserService userService,JwtUtil jwtUtil) {
         this.userService = userService;
     }
     @GetMapping("/me")
@@ -26,6 +27,7 @@ public class UserController {
                 .collect(Collectors.toSet());
         return ResponseEntity.ok(new UserResponse(username, roles));
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
          UserDTO userInformation=userService.getUserById(id);
