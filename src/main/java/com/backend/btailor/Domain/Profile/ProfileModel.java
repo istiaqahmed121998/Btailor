@@ -20,11 +20,9 @@ public class ProfileModel {
     private long id;
     @Column(nullable = false)
     private String name;
-    @Column(unique = true, nullable = false)
-    private String email;
-    @Column(unique = true, nullable = true)
+    @Column(unique = true)
     private String phone;
-    @Column(unique = true, nullable = true)
+    @Column(unique = true)
     private String address;
     @OneToOne(mappedBy = "profile")
     private UserModel user;
