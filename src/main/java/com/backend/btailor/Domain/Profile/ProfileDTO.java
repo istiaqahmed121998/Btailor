@@ -1,18 +1,7 @@
 package com.backend.btailor.Domain.Profile;
 
 import java.time.LocalDateTime;
-import lombok.*;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class ProfileDTO {
-    private String name;
-    private String email;
-    private String phone;
-    private String address;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+public record ProfileDTO(String name,String phone,String address,LocalDateTime createdAt,LocalDateTime updatedAt) {
+
 }

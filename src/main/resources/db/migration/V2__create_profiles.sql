@@ -1,7 +1,6 @@
 CREATE TABLE profiles (
                           id BIGSERIAL PRIMARY KEY,
                           name VARCHAR(255),
-                          email VARCHAR(100),
                           phone VARCHAR(20),
                           address VARCHAR(255),
                           user_id BIGINT UNIQUE,

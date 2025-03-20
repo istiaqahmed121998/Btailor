@@ -1,5 +1,6 @@
 package com.backend.btailor.config;
 
+import com.backend.btailor.Domain.Profile.ProfileModel;
 import com.backend.btailor.Domain.Role.Role;
 import com.backend.btailor.Domain.Role.RoleRepository;
 import com.backend.btailor.Domain.User.UserModel;
@@ -31,8 +32,12 @@ public class DataInitializer implements CommandLineRunner {
         if (!userRepository.existsByUsername("admin")) {
             UserModel adminUser = new UserModel();
             adminUser.setUsername("admin");
+            adminUser.setEmail("admin@gmail.com");
             adminUser.setPassword(passwordEncoder.encode("admin123")); // Use strong password in production
-
+            ProfileModel adminProfile=new ProfileModel();
+            adminProfile.setName("admin");
+            adminProfile.setPhone("123456789");
+            adminUser.setProfile(adminProfile);
             // Assign ROLE_ADMIN
             Set<Role> roles = new HashSet<>();
             roleRepository.findByRoleName("ROLE_ADMIN").ifPresent(roles::add);
