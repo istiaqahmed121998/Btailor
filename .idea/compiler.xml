@@ -10,8 +10,8 @@
         <module name="Btailor" />
         <module name="api-gateway" />
         <module name="product-service" />
+        <module name="config-server" />
         <module name="user-auth-service" />
-        <module name="service-discovery" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -20,6 +20,7 @@
       <module name="auth-service.test" target="17" />
       <module name="product-service.main" target="17" />
       <module name="product-service.test" target="17" />
+      <module name="service-discovery" target="17" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
@@ -27,6 +28,7 @@
       <module name="Btailor" options="-parameters" />
       <module name="api-gateway" options="-parameters" />
       <module name="bTailor" options="" />
+      <module name="config-server" options="-parameters" />
       <module name="product-service" options="-parameters" />
       <module name="service-discovery" options="-parameters" />
       <module name="user-auth-service" options="-parameters" />
