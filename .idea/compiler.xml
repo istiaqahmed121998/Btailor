@@ -8,8 +8,10 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="Btailor" />
+        <module name="api-gateway" />
         <module name="product-service" />
         <module name="user-auth-service" />
+        <module name="service-discovery" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -23,8 +25,10 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="Btailor" options="-parameters" />
+      <module name="api-gateway" options="-parameters" />
       <module name="bTailor" options="" />
       <module name="product-service" options="-parameters" />
+      <module name="service-discovery" options="-parameters" />
       <module name="user-auth-service" options="-parameters" />
     </option>
   </component>
