@@ -1,9 +1,9 @@
 package com.backend.userauthserivce.config;
 
-import com.backend.userauthserivce.Domain.Auth.AuthService;
-import com.backend.userauthserivce.Domain.User.UserRepository;
+import com.backend.userauthserivce.domain.auth.AuthService;
+import com.backend.userauthserivce.domain.user.UserRepository;
 import com.backend.userauthserivce.utils.JwtUtil;
-import com.backend.userauthserivce.Domain.User.UserService;
+import com.backend.userauthserivce.domain.user.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -61,6 +61,7 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", config);
         return source;
     }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -68,7 +69,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for APIs
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login","/api/auth/**","/api/auth/google").permitAll() // Allow auth endpoints
+                        .requestMatchers("/login","/api/auth/**","/api/auth/google","/actuator/health").permitAll() // Allow auth endpoints
                         .anyRequest().authenticated() // Require auth for other endpoints
                 )
                 .oauth2Login(oauth2 -> oauth2
@@ -86,6 +87,7 @@ public class SecurityConfig {
 
         return http.build();
     }
+
     @Bean
     public OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler() {
         return new OAuth2LoginSuccessHandler(jwtUtil,userRepository,authService);
@@ -95,6 +97,7 @@ public class SecurityConfig {
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
         return new JwtAuthenticationFilter(jwtUtil, userService);
     }
+
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -107,6 +110,7 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
+
     @Bean
     public AccessDeniedHandler customAccessDeniedHandler() {
         return (request, response, accessDeniedException) -> {

@@ -1,10 +1,11 @@
 package com.backend.userauthserivce.config;
 
-import com.backend.userauthserivce.Domain.Profile.ProfileModel;
-import com.backend.userauthserivce.Domain.Role.Role;
-import com.backend.userauthserivce.Domain.Role.RoleRepository;
-import com.backend.userauthserivce.Domain.User.UserModel;
-import com.backend.userauthserivce.Domain.User.UserRepository;
+import com.backend.userauthserivce.domain.profile.ProfileModel;
+import com.backend.userauthserivce.domain.role.Role;
+import com.backend.userauthserivce.domain.role.RoleRepository;
+import com.backend.userauthserivce.domain.user.UserModel;
+import com.backend.userauthserivce.domain.user.UserRepository;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;

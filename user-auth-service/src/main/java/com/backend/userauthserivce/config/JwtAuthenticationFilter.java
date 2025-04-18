@@ -1,22 +1,20 @@
 package com.backend.userauthserivce.config;
 
-import com.backend.userauthserivce.Domain.User.UserService;
+import com.backend.userauthserivce.domain.user.UserService;
+import com.backend.userauthserivce.exception.CustomUnauthorizedException;
 import com.backend.userauthserivce.utils.JwtUtil;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.NonNull;
-import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Enumeration;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
@@ -28,8 +26,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response,@NonNull FilterChain chain)
+    protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain)
             throws IOException, jakarta.servlet.ServletException {
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String headerName = headerNames.nextElement();
+            Enumeration<String> headers = request.getHeaders(headerName);  // all values for this header
+
+            while (headers.hasMoreElements()) {
+                String headerValue = headers.nextElement();
+                System.out.println(headerName + ": " + headerValue);
+            }
+        }
         String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             chain.doFilter(request, response);
@@ -48,20 +56,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             }
-        }
-        catch (Exception ex) {
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            response.setContentType("application/json");
-
-            Map<String, Object> responseBody = new HashMap<>();
-            responseBody.put("timestamp", LocalDateTime.now().toString());
-            responseBody.put("status", HttpStatus.UNAUTHORIZED.value());
-            responseBody.put("error", "Unauthorized");
-            responseBody.put("message", "Invalid Token");
-            responseBody.put("path", request.getRequestURI());
-
-            ObjectMapper objectMapper = new ObjectMapper();
-            response.getWriter().write(objectMapper.writeValueAsString(responseBody));
+        } catch (UsernameNotFoundException e) {
+            throw new CustomUnauthorizedException(e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
         chain.doFilter(request, response);
     }

@@ -1,0 +1,49 @@
+spring:
+  application:
+    name: product-service
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          public-key-location: classpath:keys/public.pem
+  cloud:
+    consul:
+      enabled: false
+      discovery:
+        enabled: false
+        register: false
+  datasource:
+    url: jdbc:postgresql://localhost:5432/productdb
+    username: istiaqahmed
+    password: password
+    driver-class-name: org.postgresql.Driver
+  flyway:
+    enabled: true
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+server:
+  port: 8082
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: always
+    whitelabel:
+      enabled: false
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health"
+  endpoint:
+    health:
+      show-details: always
+logging:
+  level:
+    org.springframework.security: DEBUG
+cloudinary:
+  cloud-name: dooadf4kx
+  api-key: 463342149666781
+  api-secret: zy9I5PXnWhM9KmHHzlysr-HV-R0

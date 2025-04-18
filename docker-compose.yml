@@ -1,0 +1,124 @@
+services:
+  # ==========================
+  # PostgreSQL for Auth
+  # ==========================
+  auth-db:
+    image: postgres:15
+    container_name: auth-db
+    environment:
+      POSTGRES_DB: authdb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - auth-db-data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  # ==========================
+  # PostgreSQL for Product
+  # ==========================
+  product-db:
+    image: postgres:15
+    container_name: product-db
+    environment:
+      POSTGRES_DB: productdb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - product-db-data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  # ==========================
+  # Auth Service
+  # ==========================
+  auth-service:
+    build:
+      context: ./user-auth-service
+    depends_on:
+      config-server:
+        condition: service_healthy
+      auth-db:
+        condition: service_started
+      redis:
+        condition: service_started
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://auth-db:5432/authdb
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: password
+    expose:
+      - "8081"
+    networks:
+      - backend
+
+  # ==========================
+  # Product Service
+  # ==========================
+  product-service:
+    build:
+      context: ./product-service
+    depends_on:
+      config-server:
+        condition: service_healthy
+      product-db:
+        condition: service_started
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://product-db:5432/productdb
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: password
+    expose:
+      - "8082"
+    networks:
+      - backend
+  consul:
+    image: hashicorp/consul:1.15.4
+    ports:
+      - "8500:8500"
+    command: consul agent -dev -client=0.0.0.0
+    networks:
+      - backend
+  # ==========================
+  # Config Server
+  # ==========================
+  config-server:
+    build:
+      context: ./config-server
+    expose:
+      - "8888:8888"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8888/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+
+
+  # ==========================
+  # Api Gateway
+  # ==========================
+
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      config-server:
+        condition: service_healthy
+      consul:
+        condition: service_started
+    networks:
+      - backend
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - backend
+volumes:
+  auth-db-data:
+  product-db-data:
+
+networks:
+  backend:

@@ -11,7 +11,6 @@ public class ResponseUtil {
         return ResponseEntity.ok(new ApiResponse<>("success", message, data));
     }
 
-
     public static <T> ResponseEntity<PaginatedResponse<T>> paginated(Page<T> data, String message) {
         return ResponseEntity.ok(new PaginatedResponse<>("success", message, data));
     }

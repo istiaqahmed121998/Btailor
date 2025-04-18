@@ -10,14 +10,15 @@
         <module name="Btailor" />
         <module name="api-gateway" />
         <module name="product-service" />
-        <module name="config-server" />
         <module name="user-auth-service" />
+        <module name="inventory-service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="auth-service" target="17" />
       <module name="auth-service.main" target="17" />
       <module name="auth-service.test" target="17" />
+      <module name="config-server" target="17" />
       <module name="product-service.main" target="17" />
       <module name="product-service.test" target="17" />
       <module name="service-discovery" target="17" />
@@ -29,6 +30,7 @@
       <module name="api-gateway" options="-parameters" />
       <module name="bTailor" options="" />
       <module name="config-server" options="-parameters" />
+      <module name="inventory-service" options="-parameters" />
       <module name="product-service" options="-parameters" />
       <module name="service-discovery" options="-parameters" />
       <module name="user-auth-service" options="-parameters" />
