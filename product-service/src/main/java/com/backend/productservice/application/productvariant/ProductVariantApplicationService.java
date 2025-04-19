@@ -5,11 +5,12 @@ import com.backend.productservice.application.productvariant.mapper.ProductVaria
 import com.backend.productservice.domain.productvariant.model.ProductVariant;
 import com.backend.productservice.domain.productvariant.repository.ProductVariantRepository;
 import jakarta.validation.Valid;
+import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
+@Service
 public class ProductVariantApplicationService {
     private final ProductVariantRepository productVariantRepository;
 
