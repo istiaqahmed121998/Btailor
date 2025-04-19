@@ -61,9 +61,6 @@ public class ProductApplicationService {
         return productRepository.findById(id);
     }
 
-
-
-
     public Page<Product> getFilteredProducts(String category, List<String> tags, BigDecimal priceMin, BigDecimal priceMax, Pageable pageable) {
         return productRepository.findFiltered(category, tags, priceMin, priceMax, pageable);
     }
