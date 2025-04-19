@@ -9,12 +9,11 @@ public class ProductVariant {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String sku;
     private String color;
     private String size;
-    private String material;
     private Double price;
+    private Integer stock;
     @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
@@ -22,12 +21,11 @@ public class ProductVariant {
 
     public ProductVariant() {}
 
-    public ProductVariant(Long id, String sku, String color, String size, String material, Double price, Product product) {
+    public ProductVariant(Long id, String sku, String color, String size, Double price, Product product) {
         this.id = id;
         this.sku = sku;
         this.color = color;
         this.size = size;
-        this.material = material;
         this.price = price;
         this.product = product;
     }
@@ -65,14 +63,6 @@ public class ProductVariant {
         this.size = size;
     }
 
-    public String getMaterial() {
-        return material;
-    }
-
-    public void setMaterial(String material) {
-        this.material = material;
-    }
-
     public Double getPrice() {
         return price;
     }
@@ -87,5 +77,13 @@ public class ProductVariant {
 
     public void setProduct(Product product) {
         this.product = product;
+    }
+
+    public Integer getStock() {
+        return stock;
+    }
+
+    public void setStock(Integer stock) {
+        this.stock = stock;
     }
 }

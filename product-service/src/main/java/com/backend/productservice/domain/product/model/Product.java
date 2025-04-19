@@ -64,6 +64,10 @@ public class Product {
         image.setProduct(this);
         this.images.add(image);
     }
+    public void addVariant(ProductVariant productVariant) {
+        productVariant.setProduct(this);
+        this.variants.add(productVariant);
+    }
 
     public Long getId() {
         return id;

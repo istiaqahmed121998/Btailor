@@ -1,5 +1,6 @@
 package com.backend.productservice.infrastructure.filestorage;
 
+import com.backend.productservice.common.service.ImageStorageService;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import org.springframework.stereotype.Service;
@@ -9,7 +10,7 @@ import java.io.IOException;
 import java.util.*;
 
 @Service
-public class CloudinaryService {
+public class CloudinaryService implements ImageStorageService {
 
     private final Cloudinary cloudinary;
 
