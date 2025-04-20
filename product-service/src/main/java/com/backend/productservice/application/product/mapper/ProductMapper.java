@@ -3,12 +3,12 @@ package com.backend.productservice.application.product.mapper;
 import com.backend.productservice.application.product.dto.ProductDTO;
 import com.backend.productservice.domain.product.model.Product;
 
+
 public class ProductMapper {
     public static Product toEntity(ProductDTO dto) {
         Product p = new Product();
         p.setName(dto.name());
         p.setDescription(dto.description());
-        p.setPrice(dto.price());
         return p;
     }
 
@@ -16,11 +16,11 @@ public class ProductMapper {
         return new ProductDTO(
                 p.getName(),
                 p.getDescription(),
-                p.getPrice(),
-                0L,
+                p.getCategory().getId(),
+                null,
                 null, // variants
-                null, // tags
-                null  // images
+                null
+
         );
     }
 }

@@ -8,7 +8,6 @@ import com.backend.productservice.domain.productvariant.model.ProductVariant;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
-import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,7 +22,6 @@ public class Product {
 
     private String name;
     private String description;
-    private BigDecimal price;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
@@ -48,11 +46,10 @@ public class Product {
     public Product() {
     }
     private Long sellerId;
-    public Product(Long id, String name, String description, BigDecimal price, Category category, Set<ProductVariant> variants, Set<ProductImage> images, Set<Tag> tags, Long sellerId) {
+    public Product(Long id, String name, String description,Category category, Set<ProductVariant> variants, Set<ProductImage> images, Set<Tag> tags, Long sellerId) {
         this.id = id;
         this.name = name;
         this.description = description;
-        this.price = price;
         this.category = category;
         this.variants = variants;
         this.images = images;
@@ -93,13 +90,6 @@ public class Product {
         this.description = description;
     }
 
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
 
     public Category getCategory() {
         return category;

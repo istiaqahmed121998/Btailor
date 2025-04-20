@@ -9,11 +9,16 @@ spring:
         register: false
 
   datasource:
-    url: jdbc:postgresql://ep-dry-frost-a5mysqyy-pooler.us-east-2.aws.neon.tech:5432/neondb?sslmode=require
-    username: neondb_owner
-    password: npg_egt3Q8bFWNcZ
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=require
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
   flyway:
-    enabled: false
+    enabled: true
+    clean-disabled: false              # ✅ Allow flyway:clean during dev
+    validate-on-migrate: false         # ✅ Skip strict validation (e.g., you might tweak old SQL files)
+    baseline-on-migrate: false         # ❌ Not usually needed in dev (start fresh)
+    out-of-order: true                 # ✅ Allow applying missed migrations (V3 after V5 is OK)
+    locations: classpath:db/migration
 
   jpa:
     hibernate:

@@ -1,7 +1,6 @@
 package com.backend.productservice.application.productvariant;
 
-import com.backend.productservice.application.productvariant.dto.ProductVariantDTO;
-import com.backend.productservice.application.productvariant.mapper.ProductVariantMapper;
+
 import com.backend.productservice.domain.productvariant.model.ProductVariant;
 import com.backend.productservice.domain.productvariant.repository.ProductVariantRepository;
 import jakarta.validation.Valid;
@@ -13,19 +12,17 @@ import java.util.Set;
 @Service
 public class ProductVariantApplicationService {
     private final ProductVariantRepository productVariantRepository;
-
     public ProductVariantApplicationService(ProductVariantRepository productVariantRepository) {
         this.productVariantRepository = productVariantRepository;
     }
 
-    public ProductVariant createProductVariant(ProductVariantDTO variantDTO) {
-        ProductVariant productVariant=ProductVariantMapper.toProductVariant(variantDTO);
+    public ProductVariant createProductVariant(ProductVariant productVariant) {
         return productVariantRepository.save(productVariant);
     }
-    public Set<ProductVariant> createProductVariants(List<@Valid ProductVariantDTO> variants) {
+    public Set<ProductVariant> createProductVariants(List<@Valid ProductVariant> variants) {
         Set<ProductVariant> productVariantList= new HashSet<>();
-        for (ProductVariantDTO variantDTO : variants) {
-            productVariantList.add(createProductVariant(variantDTO));
+        for (ProductVariant variant : variants) {
+            productVariantList.add(createProductVariant(variant));
         }
         return productVariantList;
     }

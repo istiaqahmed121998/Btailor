@@ -13,16 +13,16 @@ spring:
         enabled: false
         register: false
   datasource:
-    url: jdbc:postgresql://localhost:5432/productdb
-    username: istiaqahmed
-    password: password
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
   flyway:
     enabled: true
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     show-sql: true
 server:
   port: 8082
@@ -47,3 +47,8 @@ cloudinary:
   cloud-name: dooadf4kx
   api-key: 463342149666781
   api-secret: zy9I5PXnWhM9KmHHzlysr-HV-R0
+
+inventory:
+  service:
+    url: http://localhost:8083
+

@@ -42,13 +42,9 @@ public class ProductController {
         if (bindingResult.hasErrors()) {
             throw new ValidationException(INVALID_PRODUCT_DATA, bindingResult);
         }
-
         Product product =productApplicationService.createProduct(dto,userId);
-
         return new ResponseEntity<>(new ApiResponse<>(HttpStatus.CREATED.toString(),"Product has been created",product), HttpStatus.CREATED);
     }
-
-
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductDTO>> getProductById(@PathVariable Long id) {
@@ -73,7 +69,7 @@ public class ProductController {
             @RequestParam(defaultValue = "id,desc") String sort){
         Pageable pageable = PageRequest.of(page, size,Sort.by(parseSort(sort)));
         Page<Product> productPage = productApplicationService.getFilteredProducts(
-                category, tag, priceMin, priceMax, pageable
+                category, tag, pageable
         );
         List<ProductDTO> dtoList = productPage.getContent()
                 .stream()

@@ -13,7 +13,6 @@ public class ProductVariant {
     private String color;
     private String size;
     private Double price;
-    private Integer stock;
     @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
@@ -79,11 +78,4 @@ public class ProductVariant {
         this.product = product;
     }
 
-    public Integer getStock() {
-        return stock;
-    }
-
-    public void setStock(Integer stock) {
-        this.stock = stock;
-    }
 }
