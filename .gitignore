@@ -1,0 +1,69 @@
+# Java build files
+*.class
+*.jar
+*.war
+*.ear
+
+# Maven directories and files
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+release.properties
+dependency-reduced-pom.xml
+
+# IntelliJ IDEA project files
+.idea/
+*.iml
+*.iws
+out/
+
+# VSCode project files
+.vscode/
+
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# Environment variable files
+.env
+.env.*
+
+# Log files
+logs/
+*.log
+*.log.*
+
+# Spring Boot specific files
+*.h2.db
+*.mv.db
+*.trace.db
+spring.log
+
+# Test reports and coverage
+test-output/
+surefire-reports/
+jacoco.exec
+
+# Docker related files
+*.pid
+docker-compose.override.yml
+docker-data/
+**/tmp/
+**/build/
+
+# Keys and secrets
+**/resources/keys/
+**/resources/ssl/
+**/application-*.yml
+
+# Kubernetes and Helm files
+*.yaml
+*.yml
+*.kube/
+
+# Miscellaneous
+node_modules/
+*.swp
+*.bak
+*.tmp
