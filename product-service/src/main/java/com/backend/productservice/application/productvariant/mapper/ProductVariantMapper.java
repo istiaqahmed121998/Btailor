@@ -8,14 +8,13 @@ public class ProductVariantMapper {
         throw new IllegalStateException("ProductVariant class");
     }
     public static ProductVariantDTO toProductVariantDTO(ProductVariant productVariant) {
-        return new ProductVariantDTO(productVariant.getSize(), productVariant.getColor(), productVariant.getPrice(),productVariant.getStock());
+        return new ProductVariantDTO(productVariant.getSize(), productVariant.getColor(), productVariant.getPrice(),-1);
     }
     public static ProductVariant toProductVariant(ProductVariantDTO productVariantDTO) {
         ProductVariant productVariant = new ProductVariant();
         productVariant.setColor(productVariantDTO.color());
         productVariant.setSize(productVariantDTO.size());
         productVariant.setPrice(productVariantDTO.price());
-        productVariant.setStock(productVariantDTO.stock());
         return productVariant;
     }
 }

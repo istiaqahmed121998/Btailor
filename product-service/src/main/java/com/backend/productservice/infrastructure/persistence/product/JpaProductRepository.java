@@ -6,7 +6,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,7 +34,7 @@ public class JpaProductRepository implements ProductRepository {
     }
 
     @Override
-    public Page<Product> findFiltered(String category, List<String> tags, BigDecimal priceMin, BigDecimal priceMax, Pageable pageable) {
-        return jpaRepo.findFiltered(category,tags,priceMin,priceMax,pageable);
+    public Page<Product> findFiltered(String category, List<String> tags, Pageable pageable) {
+        return jpaRepo.findFiltered(category,tags,pageable);
     }
 }

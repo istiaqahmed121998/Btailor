@@ -16,4 +16,5 @@ public record ProductVariantDTO(
         @Min(value = 0, message = "Stock cannot be negative")
         Integer stock
 
+
 ) {}
