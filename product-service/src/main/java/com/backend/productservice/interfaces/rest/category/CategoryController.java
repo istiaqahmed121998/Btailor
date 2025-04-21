@@ -2,11 +2,16 @@ package com.backend.productservice.interfaces.rest.category;
 
 import com.backend.productservice.application.category.CategoryApplicationService;
 import com.backend.productservice.application.category.dto.CategoryDTO;
-import com.backend.productservice.domain.category.model.Category;
+import com.backend.productservice.application.category.dto.CategoryResponse;
+import com.backend.productservice.application.category.mapper.CategoryMapper;
+import com.backend.productservice.exception.ResourceNotFoundException;
+import com.backend.productservice.utils.PaginatedResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/categories")
@@ -20,18 +25,23 @@ public class CategoryController {
     }
 
     @PostMapping(value = "/")
-    public Category createCategory(@RequestBody CategoryDTO dto) {
-        return categoryService.createCategory(dto);
+    public ResponseEntity<CategoryResponse> createCategory(@RequestBody CategoryDTO dto) {
+        return ResponseEntity.ok(CategoryMapper.toResponse(categoryService.createCategory(dto)));
     }
 
-    @GetMapping
-    public List<Category> getAllCategories() {
-        return categoryService.getAllCategories();
+    @GetMapping("/")
+    public ResponseEntity<PaginatedResponse<CategoryResponse>> getAllCategories(@RequestParam(defaultValue = "0") int page,
+                                                              @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<CategoryResponse> categoryResponses = categoryService.getAllCategories(pageable);
+        return ResponseEntity.ok(new PaginatedResponse<>(HttpStatus.OK.getReasonPhrase(), "Categories", categoryResponses));
     }
 
     @GetMapping("/{id}")
-    public Optional<Category> getCategoryById(@PathVariable Long id) {
-        return categoryService.getCategoryById(id);
+    public ResponseEntity<CategoryResponse> getCategoryById(@PathVariable Long id) {
+        return categoryService.getCategoryById(id)
+                .map(category -> ResponseEntity.ok(CategoryMapper.toResponse(category)))
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
     }
 
 

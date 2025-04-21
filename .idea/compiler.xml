@@ -12,15 +12,20 @@
         <module name="api-gateway" />
         <module name="product-service" />
         <module name="user-auth-service" />
+        <module name="cart-service" />
         <module name="inventory-service" />
         <module name="notification-service" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="cart-service" target="17" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="api-gateway" options="-parameters" />
       <module name="bTailor" options="" />
+      <module name="cart-service" options="-parameters" />
       <module name="inventory-service" options="-parameters" />
       <module name="notification-service" options="-parameters" />
       <module name="product-service" options="-parameters" />

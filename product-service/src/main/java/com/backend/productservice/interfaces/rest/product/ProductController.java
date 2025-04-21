@@ -1,8 +1,9 @@
 package com.backend.productservice.interfaces.rest.product;
 
-import com.backend.productservice.Exception.ValidationException;
+import com.backend.productservice.exception.ValidationException;
 import com.backend.productservice.application.product.ProductApplicationService;
-import com.backend.productservice.application.product.dto.ProductDTO;
+import com.backend.productservice.application.product.dto.ProductRequest;
+import com.backend.productservice.application.product.dto.ProductResponse;
 import com.backend.productservice.application.product.mapper.ProductMapper;
 import com.backend.productservice.common.security.annotation.CurrentUserId;
 import com.backend.productservice.domain.product.model.Product;
@@ -38,20 +39,20 @@ public class ProductController {
 
     @PreAuthorize("hasRole('VENDOR')")
     @PostMapping(value = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ApiResponse<?>> createProduct(@CurrentUserId Long userId, @Valid @ModelAttribute ProductDTO dto, BindingResult bindingResult) throws Exception {
+    public ResponseEntity<ApiResponse<ProductResponse>> createProduct(@CurrentUserId Long userId, @Valid @ModelAttribute ProductRequest dto, BindingResult bindingResult) throws Exception {
         if (bindingResult.hasErrors()) {
             throw new ValidationException(INVALID_PRODUCT_DATA, bindingResult);
         }
         Product product =productApplicationService.createProduct(dto,userId);
-        return new ResponseEntity<>(new ApiResponse<>(HttpStatus.CREATED.toString(),"Product has been created",product), HttpStatus.CREATED);
+        ProductResponse productResponse= ProductMapper.toProductResponse(product);
+        return new ResponseEntity<>(new ApiResponse<>(HttpStatus.CREATED.toString(),"Product has been created",productResponse), HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<ProductDTO>> getProductById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<ProductResponse>> getProductById(@PathVariable Long id) {
         Optional<Product> product = productApplicationService.getProductById(id);
         if (product.isPresent()) {
-            return new ResponseEntity<>(new ApiResponse<>(HttpStatus.OK.toString(),"Product Information",ProductMapper.toDTO(product.get())), HttpStatus.OK);
-
+            return new ResponseEntity<>(new ApiResponse<>(HttpStatus.OK.toString(),"Product Information",ProductMapper.toProductResponse(product.get())), HttpStatus.OK);
         }
         else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -59,7 +60,7 @@ public class ProductController {
     }
 
     @GetMapping("/")
-    public ResponseEntity<PaginatedResponse<ProductDTO>> getAllProducts(
+    public ResponseEntity<PaginatedResponse<ProductResponse>> getAllProducts(
             @RequestParam(required = false) String category,
             @RequestParam(required = false) List<String> tag,
             @RequestParam(required = false) BigDecimal priceMin,
@@ -68,17 +69,11 @@ public class ProductController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id,desc") String sort){
         Pageable pageable = PageRequest.of(page, size,Sort.by(parseSort(sort)));
-        Page<Product> productPage = productApplicationService.getFilteredProducts(
+        Page<ProductResponse> productResponses = productApplicationService.getFilteredProducts(
                 category, tag, pageable
         );
-        List<ProductDTO> dtoList = productPage.getContent()
-                .stream()
-                .map((ProductMapper::toDTO))
-                .toList();
-        return ResponseEntity.ok(new PaginatedResponse<>(HttpStatus.OK.toString(),"",dtoList,productPage.getNumber(),
-                productPage.getSize(),
-                productPage.getTotalElements()
-        ));
+
+        return ResponseEntity.ok(new PaginatedResponse<>(HttpStatus.OK.toString(),"Products",productResponses));
     }
     private Sort.Order parseSort(String sort) {
         String[] parts = sort.split(",");

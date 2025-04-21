@@ -1,7 +1,7 @@
 package com.backend.inventoryservice.infrastructure.persistance;
 
-import com.backend.inventoryservice.application.model.InventoryItem;
-import com.backend.inventoryservice.application.repository.InventoryRepository;
+import com.backend.inventoryservice.domain.model.InventoryItem;
+import com.backend.inventoryservice.domain.repository.InventoryRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;

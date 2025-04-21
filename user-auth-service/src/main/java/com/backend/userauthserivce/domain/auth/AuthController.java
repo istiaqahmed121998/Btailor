@@ -47,11 +47,11 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<AccessTokenResponse> refreshToken(@RequestParam @NotBlank String accessToken, BindingResult bindingResult) throws Exception {
+    public ResponseEntity<AccessTokenResponse> refreshToken(@RequestParam @NotBlank String refreshToken, BindingResult bindingResult) throws Exception {
         if (bindingResult.hasErrors()) {
             throw new ValidationException(INVALID_USER_DATA, bindingResult);
         }
-        AccessTokenResponse token=authService.refreshAccessToken(accessToken);
+        AccessTokenResponse token=authService.refreshAccessToken(refreshToken);
         return ResponseEntity.ok(token);
     }
 }

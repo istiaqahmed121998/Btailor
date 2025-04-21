@@ -1,7 +1,8 @@
 package com.backend.productservice.utils;
 
 
-import java.util.List;
+import org.springframework.data.domain.Page;
 
-public record PaginatedResponse<T>(String status, String message, List<T> content, int page, int size, long totalElements) {
+
+public record PaginatedResponse<T>(String status, String message, Page<T> data)  {
 }
