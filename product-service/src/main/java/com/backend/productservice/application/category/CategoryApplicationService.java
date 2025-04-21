@@ -1,11 +1,14 @@
 package com.backend.productservice.application.category;
 
 import com.backend.productservice.application.category.dto.CategoryDTO;
+import com.backend.productservice.application.category.dto.CategoryResponse;
+import com.backend.productservice.application.category.mapper.CategoryMapper;
 import com.backend.productservice.domain.category.repository.CategoryRepository;
 import com.backend.productservice.domain.category.model.Category;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 @Service
 public class CategoryApplicationService {
@@ -46,8 +49,9 @@ public class CategoryApplicationService {
 
 
 
-    public List<Category> getAllCategories() {
-        return categoryRepository.findAll();
+    public Page<CategoryResponse> getAllCategories(Pageable pageable) {
+        Page<Category> categoryPage = categoryRepository.findAll(pageable);
+        return categoryPage.map(CategoryMapper::toResponse);
     }
 
     public Optional<Category> getCategoryById(Long id) {

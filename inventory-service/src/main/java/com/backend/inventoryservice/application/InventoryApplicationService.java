@@ -1,7 +1,8 @@
-package com.backend.inventoryservice.domain.service;
+package com.backend.inventoryservice.application;
 
-import com.backend.inventoryservice.application.model.InventoryItem;
-import com.backend.inventoryservice.application.repository.InventoryRepository;
+import com.backend.inventoryservice.domain.model.InventoryItem;
+import com.backend.inventoryservice.domain.repository.InventoryRepository;
+import com.backend.inventoryservice.exception.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -80,4 +81,8 @@ public class InventoryApplicationService {
         return itemOpt.map(item -> item.getAvailableQuantity() >= requiredQuantity)
                 .orElse(false);
     }
+
+    public InventoryItem getBySku(String variantSku) {
+        return repository.findByVariantSku(variantSku)
+                .orElseThrow(() -> new ResourceNotFoundException("Variant SKU not found: " + variantSku));}
 }

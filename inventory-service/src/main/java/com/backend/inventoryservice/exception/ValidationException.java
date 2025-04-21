@@ -1,4 +1,4 @@
-package com.backend.productservice.Exception;
+package com.backend.inventoryservice.exception;
 
 
 import org.springframework.validation.BindingResult;

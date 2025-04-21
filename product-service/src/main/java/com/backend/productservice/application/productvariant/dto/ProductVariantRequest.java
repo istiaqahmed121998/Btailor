@@ -2,8 +2,7 @@ package com.backend.productservice.application.productvariant.dto;
 
 import jakarta.validation.constraints.*;
 
-public record ProductVariantDTO(
-
+public record ProductVariantRequest(
         @NotBlank(message = "Variant size is required")
         String size,
 
@@ -17,4 +16,5 @@ public record ProductVariantDTO(
         Integer stock
 
 
-) {}
+) {
+}

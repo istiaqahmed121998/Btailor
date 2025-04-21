@@ -1,4 +1,4 @@
-package com.backend.inventoryservice.application.model;
+package com.backend.inventoryservice.domain.model;
 
 import jakarta.persistence.*;
 

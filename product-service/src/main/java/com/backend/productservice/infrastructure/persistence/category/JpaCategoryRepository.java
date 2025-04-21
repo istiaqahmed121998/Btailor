@@ -2,9 +2,10 @@ package com.backend.productservice.infrastructure.persistence.category;
 
 import com.backend.productservice.domain.category.model.Category;
 import com.backend.productservice.domain.category.repository.CategoryRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 @Repository
 public class JpaCategoryRepository implements CategoryRepository {
@@ -27,10 +28,9 @@ public class JpaCategoryRepository implements CategoryRepository {
     }
 
     @Override
-    public List<Category> findAll() {
-        return jpaRepo.findAll();
+    public Page<Category> findAll(Pageable pageable) {
+        return jpaRepo.findAll(pageable);
     }
-
     @Override
     public Optional<Category> findByName(String name) {
         return jpaRepo.findByName(name);

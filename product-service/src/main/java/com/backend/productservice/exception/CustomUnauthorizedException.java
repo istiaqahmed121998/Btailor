@@ -1,4 +1,4 @@
-package com.backend.productservice.Exception;
+package com.backend.productservice.exception;
 
 import org.springframework.security.core.AuthenticationException;
 

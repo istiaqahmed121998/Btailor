@@ -1,6 +1,6 @@
-package com.backend.inventoryservice.application.repository;
+package com.backend.inventoryservice.domain.repository;
 
-import com.backend.inventoryservice.application.model.InventoryItem;
+import com.backend.inventoryservice.domain.model.InventoryItem;
 
 import java.util.Optional;
 
