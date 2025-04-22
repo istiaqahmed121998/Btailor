@@ -30,14 +30,16 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
     private final LoginAttemptService loginAttemptService;
+    private final UserEventPublisher userEventPublisher;
     Logger logger = Logger.getLogger(getClass().getName());
-    public AuthService(PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, RoleRepository roleRepository, JwtUtil jwtUtil, UserRepository userRepository, LoginAttemptService loginAttemptService) {
+    public AuthService(PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, RoleRepository roleRepository, JwtUtil jwtUtil, UserRepository userRepository, LoginAttemptService loginAttemptService, UserEventPublisher userEventPublisher) {
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.roleRepository = roleRepository;
         this.jwtUtil = jwtUtil;
         this.userRepository = userRepository;
         this.loginAttemptService = loginAttemptService;
+        this.userEventPublisher = userEventPublisher;
     }
     public TokenResponse loginUser(@Valid AuthRequest authRequest) throws AccountLockedException, AuthenticationException {
         // Check if the account is locked
@@ -94,6 +96,10 @@ public class AuthService {
 
         user.setProfile(profile);
         userRepository.save(user);
+        UserCreatedEvent event = new UserCreatedEvent(
+                user.getId(), user.getUsername(), user.getEmail()
+        );
+        userEventPublisher.publishUserCreated(event);
         Set<String> roleNames = user.getRoles().stream()
                 .map(Role::getName)
                 .collect(Collectors.toSet());
