@@ -1,9 +1,8 @@
-package com.backend.orderservice.infrastructure.config;
+package com.backend.common.config;
 
 import com.backend.common.events.CartCheckedOutEvent;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.springframework.boot.autoconfigure.kafka.ConcurrentKafkaListenerContainerFactoryConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
@@ -47,7 +46,7 @@ public class KafkaConsumerConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, CartCheckedOutEvent> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, CartCheckedOutEvent> factory = new ConcurrentKafkaListenerContainerFactory<String, CartCheckedOutEvent>();
+        ConcurrentKafkaListenerContainerFactory<String, CartCheckedOutEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         return factory;
     }

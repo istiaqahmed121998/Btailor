@@ -1,7 +1,7 @@
 package com.backend.common.events;
 
-import com.backend.common.dto.OrderItem;
+import com.backend.common.dto.CartItem;
 
-import java.util.Map;
+import java.util.List;
 
-public record ReserveInventoryRequest(String orderId, Map<OrderItem, Integer> productQuantities) {}
+public record ReserveInventoryRequest(String orderId, Long userId, List<CartItem> items) {}

@@ -1,12 +1,10 @@
 package com.backend.notificationservice.infrastructure.listener;
 
-import com.backend.common.events.OrderCreatedEvent;
 import com.backend.common.events.UserCreatedEvent;
 import com.backend.notificationservice.application.service.NotificationApplicationService;
 import com.backend.notificationservice.application.service.NotificationEventFactory;
 import com.backend.notificationservice.application.service.NotificationLogger;
 import com.backend.notificationservice.domain.model.NotificationEvent;
-//import com.backend.notificationservice.domain.model.UserCreatedEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -26,14 +24,14 @@ public class NotificationEventListener {
         this.notificationLogger = notificationLogger;
     }
 
-    @KafkaListener(topics = "user-events", groupId = "notification-group")
-    public void listenUserCreated(ConsumerRecord<String, String> record) throws JsonProcessingException {
-        UserCreatedEvent event = objectMapper.readValue(record.value(), UserCreatedEvent.class);
+    @KafkaListener(topics = "user-events", groupId = "notification-service-group")
+    public void listenUserCreated(ConsumerRecord<String, String> userRecord) throws JsonProcessingException {
+        UserCreatedEvent event = objectMapper.readValue(userRecord.value(), UserCreatedEvent.class);
         NotificationEvent notification = NotificationEventFactory.welcomeEmail(event);
         appService.handle(notification)
-                .then(Mono.defer(() -> notificationLogger.logSuccess(notification, record.partition(), record.offset(), "USER_CREATED", "SYSTEM")))
+                .then(Mono.defer(() -> notificationLogger.logSuccess(notification, userRecord.partition(), userRecord.offset(), "USER_CREATED", "SYSTEM")))
                 .onErrorResume(e ->
-                     notificationLogger.logFailure(notification, record.partition(), record.offset(), "USER_CREATED", "SYSTEM")
+                     notificationLogger.logFailure(notification, userRecord.partition(), userRecord.offset(), "USER_CREATED", "SYSTEM")
                 )
                 .subscribe();
     }
