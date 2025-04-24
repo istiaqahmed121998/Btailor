@@ -5,7 +5,7 @@ import com.backend.productservice.application.product.ProductApplicationService;
 import com.backend.productservice.application.product.dto.ProductRequest;
 import com.backend.productservice.application.product.dto.ProductResponse;
 import com.backend.productservice.application.product.mapper.ProductMapper;
-import com.backend.productservice.common.security.annotation.CurrentUserId;
+import com.backend.common.security.annotation.CurrentUserId;
 import com.backend.productservice.domain.product.model.Product;
 import com.backend.productservice.utils.ApiResponse;
 import com.backend.productservice.utils.PaginatedResponse;

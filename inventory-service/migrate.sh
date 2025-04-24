@@ -26,7 +26,7 @@ JDBC_URL="jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}"
 
 # Run Flyway migration
 echo "🚀 Running Flyway migration..."
-mvn flyway:migrate\
+mvn flyway:migrate \
   -Dflyway.url=$JDBC_URL \
   -Dflyway.user=$DB_USER \
   -Dflyway.password=$DB_PASSWORD

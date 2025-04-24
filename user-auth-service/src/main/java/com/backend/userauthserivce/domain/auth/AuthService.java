@@ -1,5 +1,7 @@
 package com.backend.userauthserivce.domain.auth;
 
+import com.backend.common.events.UserCreatedEvent;
+import com.backend.common.exception.ConflictException;
 import com.backend.userauthserivce.domain.profile.ProfileModel;
 import com.backend.userauthserivce.domain.role.Role;
 import com.backend.userauthserivce.domain.role.RoleRepository;
@@ -77,6 +79,7 @@ public class AuthService {
     public TokenResponse createUser(UserProfileRequest request, String roleName) throws Exception {
         UserModel user = new UserModel();
         user.setUsername(request.username());
+
         user.setEmail(request.email());
         user.setPassword(passwordEncoder.encode(request.password()));
         Set<Role> roles = new HashSet<>();

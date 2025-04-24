@@ -13,12 +13,15 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
+        <module>common-library</module>
         <module>api-gateway</module>
         <module>user-auth-service</module>
         <module>product-service</module>
         <module>inventory-service</module>
         <module>cart-service</module>
+        <module>order-service</module>
         <module>notification-service</module>
+        <module>common-library</module>
     </modules>
     <properties>
         <java.version>17</java.version>
@@ -40,6 +43,7 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
         </dependencies>
 
     </dependencyManagement>
@@ -53,5 +57,4 @@
             </plugins>
         </pluginManagement>
     </build>
-
 </project>

@@ -60,8 +60,6 @@ public class InventoryItem {
         this.lastUpdated = LocalDateTime.now();
     }
 
-    // Getters...
-
 
     public Long getId() {
         return id;

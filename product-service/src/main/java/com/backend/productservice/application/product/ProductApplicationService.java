@@ -11,6 +11,7 @@ import com.backend.productservice.domain.category.repository.CategoryRepository;
 import com.backend.productservice.domain.product.model.Product;
 import com.backend.productservice.domain.product.repository.ProductRepository;
 import com.backend.productservice.domain.productimage.model.ProductImage;
+import com.backend.productservice.exception.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -74,5 +75,11 @@ public class ProductApplicationService {
     public Page<ProductResponse> getFilteredProducts(String category, List<String> tags, Pageable pageable) {
         Page<Product> products=productRepository.findFiltered(category, tags, pageable);
         return products.map(ProductMapper::toProductResponse);
+    }
+
+    public boolean isOwner(Long productId, Long userId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+        return product.getSellerId().equals(userId);
     }
 }

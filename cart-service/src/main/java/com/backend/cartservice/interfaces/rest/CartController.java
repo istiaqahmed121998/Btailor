@@ -1,8 +1,9 @@
 package com.backend.cartservice.interfaces.rest;
 
 import com.backend.cartservice.application.CartService;
-import com.backend.cartservice.common.security.annotation.CurrentUserId;
-import com.backend.cartservice.domain.model.CartItem;
+import com.backend.cartservice.application.dto.CheckoutRequest;
+import com.backend.common.dto.CartItem;
+import com.backend.common.security.annotation.CurrentUserId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -34,10 +35,8 @@ public class CartController {
     }
 
     @PostMapping("/checkout")
-    public Mono<ResponseEntity<Void>> checkout(@CurrentUserId Long userId,
-                                               @RequestParam Long shippingAddressId,
-                                               @RequestParam String paymentMethod) {
-        return cartService.checkout(userId, shippingAddressId, paymentMethod)
+    public Mono<ResponseEntity<Void>> checkout(@CurrentUserId Long userId, @RequestBody CheckoutRequest checkoutRequest) {
+        return cartService.checkout(userId, checkoutRequest.shippingAddress(), checkoutRequest.paymentMethod())
                 .thenReturn(ResponseEntity.accepted().build());
     }
 }

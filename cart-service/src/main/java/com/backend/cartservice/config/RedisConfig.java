@@ -1,6 +1,6 @@
 package com.backend.cartservice.config;
 
-import com.backend.cartservice.domain.model.CartItem;
+import com.backend.common.dto.CartItem;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;

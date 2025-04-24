@@ -19,7 +19,6 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String name;
     private String description;
 
@@ -64,6 +63,13 @@ public class Product {
     public void addVariant(ProductVariant productVariant) {
         productVariant.setProduct(this);
         this.variants.add(productVariant);
+    }
+    public String getThumbnailUrl() {
+        // If variant has no image, fallback to product image
+        return this.getImages().stream()
+                .findFirst()
+                .map(ProductImage::getImageUrl)
+                .orElse(null);
     }
 
     public Long getId() {

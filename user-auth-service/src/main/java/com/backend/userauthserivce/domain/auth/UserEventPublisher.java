@@ -1,5 +1,6 @@
 package com.backend.userauthserivce.domain.auth;
 
+import com.backend.common.events.UserCreatedEvent;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 

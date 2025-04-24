@@ -1,9 +1,9 @@
 package com.backend.notificationservice.application.service;
 
+import com.backend.common.events.OrderCreatedEvent;
+import com.backend.common.events.UserCreatedEvent;
 import com.backend.notificationservice.domain.model.NotificationEvent;
 import com.backend.notificationservice.domain.model.NotificationType;
-import com.backend.notificationservice.domain.model.OrderCreatedEvent;
-import com.backend.notificationservice.domain.model.UserCreatedEvent;
 
 import java.time.Year;
 import java.util.HashMap;
@@ -37,16 +37,16 @@ public class NotificationEventFactory {
                 NotificationType.EMAIL
         );
     }
-
-    public static NotificationEvent orderPush(OrderCreatedEvent event) {
-        return new NotificationEvent(
-                event.userId(),
-                event.email(),
-                "🛒 Order Placed",
-                "order-confirmation",
-                Map.of("name", event.name(), "orderId", event.orderId()),
-                NotificationType.EMAIL
-
-        );
-    }
+//
+//    public static NotificationEvent orderPush(OrderCreatedEvent event) {
+//        return new NotificationEvent(
+//                event.getBuyerId()),
+//                event.email(),
+//                "🛒 Order Placed",
+//                "order-confirmation",
+//                Map.of("name", event.name(), "orderId", event.orderId()),
+//                NotificationType.EMAIL
+//
+//        );
+//    }
 }

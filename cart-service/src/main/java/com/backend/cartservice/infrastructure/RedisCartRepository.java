@@ -1,6 +1,6 @@
 package com.backend.cartservice.infrastructure;
 
-import com.backend.cartservice.domain.model.CartItem;
+import com.backend.common.dto.CartItem;
 import org.springframework.data.redis.core.ReactiveListOperations;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.stereotype.Repository;

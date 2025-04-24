@@ -1,12 +1,8 @@
 package com.backend.cartservice.application;
 
-import com.backend.cartservice.domain.event.CartCheckedOutEvent;
-import com.backend.cartservice.domain.model.CartItem;
+import com.backend.common.events.CartCheckedOutEvent;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
-
-import java.time.Instant;
-import java.util.List;
 
 @Component
 public class CheckoutPublisher {
@@ -17,8 +13,7 @@ public class CheckoutPublisher {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    public void publish(Long userId, Long shippingAddressId, String paymentMethod, List<CartItem> items) {
-        CartCheckedOutEvent event = new CartCheckedOutEvent(userId, items,shippingAddressId, paymentMethod, Instant.now() );
-        kafkaTemplate.send("cart-checked-out",String.valueOf(userId), event);
+    public void publish(CartCheckedOutEvent event) {
+        kafkaTemplate.send("cart-checked-out",String.valueOf(event.getUserId()), event);
     }
 }

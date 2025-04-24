@@ -1,6 +1,8 @@
 package com.backend.productservice.application.productvariant;
 
 
+import com.backend.productservice.application.product.dto.ProductSnapshotDto;
+import com.backend.productservice.application.product.mapper.ProductSnapshotMapper;
 import com.backend.productservice.exception.ResourceNotFoundException;
 import com.backend.productservice.application.productvariant.dto.ProductVariantRequest;
 import com.backend.productservice.application.productvariant.mapper.ProductVariantMapper;
@@ -43,7 +45,11 @@ public class ProductVariantApplicationService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product with id " + productId + " not found"));
 
-
         return createProductVariant(product, variantRequest);
+    }
+
+    public ProductSnapshotDto getProductVariant(String variantSku) {
+        ProductVariant variant =productVariantRepository.findBySku(variantSku).orElseThrow(() -> new ResourceNotFoundException("Product Variant is not found"));
+        return ProductSnapshotMapper.toSnapshot(variant.getProduct(), variant);
     }
 }

@@ -56,7 +56,6 @@ public class SecurityConfig {
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
-
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
@@ -77,7 +76,7 @@ public class SecurityConfig {
                         .successHandler(oAuth2LoginSuccessHandler()) // Custom handler to generate JWT
                 )
                 .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(new CustomAuthenticationEntryPoint()) // Custom 401 response
+                        .authenticationEntryPoint(new CustomUserAuthenticationEntryPoint()) // Custom 401 response
                         .accessDeniedHandler((request, response, accessDeniedException) -> { // Forward 403 to GlobalExceptionHandler
                             throw new AccessDeniedException("You do not have permission to access this resource.");
                         })

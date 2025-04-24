@@ -1,6 +1,6 @@
 package com.backend.userauthserivce.domain.auth;
 
-import com.backend.userauthserivce.exception.ValidationException;
+import com.backend.common.exception.ValidationException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;

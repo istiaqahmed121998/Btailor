@@ -18,8 +18,8 @@ import java.util.List;
 
 @Service
 public class JwtUtil {
-    private static final long ACCESS_TOKEN_EXPIRY = 1000 * 60 * 15; // 15 minutes
-    private static final long REFRESH_TOKEN_EXPIRY = 1000 * 60 * 60 * 24; // 24 hours
+    private static final long ACCESS_TOKEN_EXPIRY = 1000 * 60 * 60; // 60 minutes
+    private static final long REFRESH_TOKEN_EXPIRY = 1000 * 60 * 60 * 24 * 3; // 3 days
 
     private RSAPrivateKey getPrivateKey() throws Exception {
         try {

@@ -1,7 +1,7 @@
 package com.backend.userauthserivce.config;
 
 import com.backend.userauthserivce.domain.user.UserService;
-import com.backend.userauthserivce.exception.CustomUnauthorizedException;
+import com.backend.common.exception.CustomUnauthorizedException;
 import com.backend.userauthserivce.utils.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,16 +28,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain)
             throws IOException, jakarta.servlet.ServletException {
-        Enumeration<String> headerNames = request.getHeaderNames();
-        while (headerNames.hasMoreElements()) {
-            String headerName = headerNames.nextElement();
-            Enumeration<String> headers = request.getHeaders(headerName);  // all values for this header
-
-            while (headers.hasMoreElements()) {
-                String headerValue = headers.nextElement();
-                System.out.println(headerName + ": " + headerValue);
-            }
-        }
         String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             chain.doFilter(request, response);
