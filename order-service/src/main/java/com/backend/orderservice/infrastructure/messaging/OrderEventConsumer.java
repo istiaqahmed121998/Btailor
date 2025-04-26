@@ -8,7 +8,6 @@ import com.backend.orderservice.domain.port.PaymentGateway;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -50,6 +49,8 @@ public class OrderEventConsumer {
                                 ));
 
                                 if (result.success()) {
+                                    applicationOrderService.orderStatusUpdate(event.orderId(), "COMPLETED")
+                                            .subscribe();
                                     orderCompletePublisher.publish(new OrderCompletedEvent(result.transactionId(), order.getBuyerId(),order.getBuyerName(), order.getBuyerEmail(),order.getPaymentMethod(),order.getTotalAmount(),order.getItems()));
                                 } else {
                                     paymentFailedPublisher.publish(new PaymentFailedEvent(order.getId(), order.getBuyerId(),order.getBuyerName(), order.getBuyerEmail(),order.getPaymentMethod(),order.getTotalAmount(),result.failureReason(),order.getItems()));
@@ -58,6 +59,7 @@ public class OrderEventConsumer {
                             }
                     ).doOnError(error -> log.info(error.getMessage()))
                     .subscribe();
+
         }
         else {
             applicationOrderService.orderStatusUpdate(event.orderId(), "OUT_OF_STOCK")
