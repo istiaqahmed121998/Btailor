@@ -20,7 +20,6 @@ This workspace uses a **multi-module Maven project** structure. The main modules
 - **notification-service**: Reactive notifications handling using **Spring WebFlux**.
 - **payment-service**: Manages payment processing and transaction tracking (Spring MVC) with **gRPC** integration for communication with the **order-service**.
 
-> **Note:** The `common-library` module appears twice in the `pom.xml`. Please correct it to appear only once.
 
 ---
 
