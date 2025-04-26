@@ -8,6 +8,8 @@ import java.util.List;
 
 public class CartCheckedOutEvent {
     private Long userId;
+    private String name;
+    private String email;
     private List<CartItem> items;
     private String shippingAddress;
     private String paymentMethod;
@@ -18,11 +20,13 @@ public class CartCheckedOutEvent {
 
     }
 
-    public CartCheckedOutEvent(Long userId, List<CartItem> items, String paymentMethod, String shippingAddress, Instant checkoutTime) {
+    public CartCheckedOutEvent(Long userId, String name, String email, List<CartItem> items, String shippingAddress, String paymentMethod, Instant checkoutTime) {
         this.userId = userId;
+        this.name = name;
+        this.email = email;
         this.items = items;
-        this.paymentMethod = paymentMethod;
         this.shippingAddress = shippingAddress;
+        this.paymentMethod = paymentMethod;
         this.checkoutTime = checkoutTime;
     }
 
@@ -32,6 +36,22 @@ public class CartCheckedOutEvent {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public List<CartItem> getItems() {

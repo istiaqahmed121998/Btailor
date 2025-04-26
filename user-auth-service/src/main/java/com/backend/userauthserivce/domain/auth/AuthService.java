@@ -1,7 +1,6 @@
 package com.backend.userauthserivce.domain.auth;
 
 import com.backend.common.events.UserCreatedEvent;
-import com.backend.common.exception.ConflictException;
 import com.backend.userauthserivce.domain.profile.ProfileModel;
 import com.backend.userauthserivce.domain.role.Role;
 import com.backend.userauthserivce.domain.role.RoleRepository;
@@ -62,7 +61,7 @@ public class AuthService {
                 Set<String> roles = user.getRoles().stream()
                         .map(Role::getName)
                         .collect(Collectors.toSet());
-                return new TokenResponse(jwtUtil.generateToken(authRequest.email(),user.getId(),user.getRoles().stream()
+                return new TokenResponse(jwtUtil.generateToken(user.getId(),user.getProfile().getName(),authRequest.email(),user.getRoles().stream()
                         .map(Role::getName)
                         .collect(Collectors.toList())),"Bearer ",jwtUtil.generateRefreshToken(authRequest.email()),jwtUtil.getExpirationTime(),authRequest.email(),user.getProfile().getName(),roles);
             }
@@ -100,13 +99,13 @@ public class AuthService {
         user.setProfile(profile);
         userRepository.save(user);
         UserCreatedEvent event = new UserCreatedEvent(
-                user.getId(), user.getUsername(), user.getEmail()
+                user.getId(), user.getProfile().getName(), user.getEmail()
         );
         userEventPublisher.publishUserCreated(event);
         Set<String> roleNames = user.getRoles().stream()
                 .map(Role::getName)
                 .collect(Collectors.toSet());
-        return new TokenResponse(jwtUtil.generateToken(user.getEmail(), user.getId(), user.getRoles().stream()
+        return new TokenResponse(jwtUtil.generateToken(user.getId(),user.getProfile().getName(), user.getEmail(), user.getRoles().stream()
                 .map(Role::getName)
                 .collect(Collectors.toList())),"Bearer ",jwtUtil.generateRefreshToken(user.getEmail()),jwtUtil.getExpirationTime(),user.getUsername(),request.name(),roleNames);
     }
@@ -119,7 +118,7 @@ public class AuthService {
             throw new RuntimeException("Refresh token expired");
         }
         else {
-            return new AccessTokenResponse(jwtUtil.generateToken(email,userModel.getId(),userModel.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList())),jwtUtil.generateRefreshToken(email));
+            return new AccessTokenResponse(jwtUtil.generateToken(userModel.getId(),userModel.getProfile().getName(),email,userModel.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList())),jwtUtil.generateRefreshToken(email));
         }
     }
 }

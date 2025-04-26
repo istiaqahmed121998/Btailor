@@ -4,8 +4,6 @@ import com.backend.common.dto.OrderItem;
 import com.backend.orderservice.domain.model.Order;
 import com.backend.orderservice.domain.repository.OrderRepository;
 import com.backend.common.events.CartCheckedOutEvent;
-import com.backend.common.events.OrderCreatedEvent;
-import com.backend.orderservice.infrastructure.messaging.OrderEventPublisher;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -17,11 +15,10 @@ import java.util.List;
 public class ApplicationOrderService {
 
     private final OrderRepository orderRepository;
-    private final OrderEventPublisher orderEventPublisher;
 
-    public ApplicationOrderService(OrderRepository orderRepository, OrderEventPublisher orderEventPublisher) {
+
+    public ApplicationOrderService(OrderRepository orderRepository) {
         this.orderRepository = orderRepository;
-        this.orderEventPublisher = orderEventPublisher;
     }
 
     public Mono<Order> placeOrder(CartCheckedOutEvent event) {
@@ -38,27 +35,23 @@ public class ApplicationOrderService {
 
         Order order = new Order();
         order.setBuyerId(event.getUserId());
+        order.setBuyerName(event.getName());
+        order.setBuyerEmail(event.getEmail());
         order.setItems(orderItems);
         order.setShippingAddress(event.getShippingAddress());
         order.setPaymentMethod(event.getPaymentMethod());
-        order.setStatus("CREATED");
+        order.setStatus("PENDING");
         order.setCreatedAt(LocalDateTime.ofInstant(event.getCheckoutTime(), ZoneId.systemDefault()));
 
-        return orderRepository.save(order)
-                .doOnSuccess(saved -> {
-                    OrderCreatedEvent createdEvent = new OrderCreatedEvent(
-                            order.getId(),
-                            order.getBuyerId(),
-                            order.getTotalAmount(),
-                            order.getPaymentMethod(),
-                            order.getItems(),
-                            order.getCreatedAt()
-                    );
-                    orderEventPublisher.publish(createdEvent);
-                });
+        return orderRepository.save(order);
     }
 
     public  Mono<Order> orderStatusUpdate(String id, String orderStatus) {
-        return orderRepository.findById(id).doOnSuccess(order-> order.setStatus(orderStatus));
+        return orderRepository.findById(id)
+                // now chain into save, returning its Mono<Order>
+                .flatMap(order -> {
+                    order.setStatus(orderStatus);
+                    return orderRepository.save(order);
+                });
     }
 }

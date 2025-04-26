@@ -12,6 +12,8 @@ public class Order {
     @Id
     private String id;
     private Long buyerId;
+    private String buyerName;
+    private String buyerEmail;
     private List<OrderItem> items;
     private String shippingAddress;
     private String paymentMethod;
@@ -23,14 +25,19 @@ public class Order {
 
     }
 
-    public Order(String id, Long buyerId, List<OrderItem> items,String shippingAddress, String paymentMethod, String status, LocalDateTime createdAt) {
+    public Order(String id, Long buyerId, String buyerName, String buyerEmail, List<OrderItem> items, String shippingAddress, String paymentMethod, String failureReason, String status, LocalDateTime createdAt) {
         this.id = id;
         this.buyerId = buyerId;
+        this.buyerName = buyerName;
+        this.buyerEmail = buyerEmail;
         this.items = items;
+        this.shippingAddress = shippingAddress;
         this.paymentMethod = paymentMethod;
+        this.failureReason = failureReason;
         this.status = status;
         this.createdAt = createdAt;
     }
+
     public double getTotalAmount() {
         return items.stream()
                 .mapToDouble(item -> item.getPrice() * item.getQuantity())
@@ -61,6 +68,22 @@ public class Order {
 
     public void setBuyerId(Long buyerId) {
         this.buyerId = buyerId;
+    }
+
+    public void setBuyerName(String buyerName) {
+        this.buyerName = buyerName;
+    }
+
+    public void setBuyerEmail(String buyerEmail) {
+        this.buyerEmail = buyerEmail;
+    }
+
+    public String getBuyerName() {
+        return buyerName;
+    }
+
+    public String getBuyerEmail() {
+        return buyerEmail;
     }
 
     public List<OrderItem> getItems() {

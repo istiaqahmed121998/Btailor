@@ -1,5 +1,7 @@
 package com.backend.inventoryservice.config;
 
+import com.backend.common.events.PaymentFailedEvent;
+import com.backend.common.events.OrderCompletedEvent;
 import com.backend.common.events.ReserveInventoryRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +18,25 @@ public class KafkaConfig {
     public ConcurrentKafkaListenerContainerFactory<String, ReserveInventoryRequest> reserveInventoryRequestListenerFactory(ConsumerFactory<String, ReserveInventoryRequest> consumerFactory) {
 
         ConcurrentKafkaListenerContainerFactory<String, ReserveInventoryRequest> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setRecordMessageConverter(new StringJsonMessageConverter());
+        factory.setConsumerFactory(consumerFactory);
+        return factory;
+    }
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, OrderCompletedEvent> deductInventoryRequestListenerFactory(ConsumerFactory<String, OrderCompletedEvent> consumerFactory) {
+
+        ConcurrentKafkaListenerContainerFactory<String, OrderCompletedEvent> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setRecordMessageConverter(new StringJsonMessageConverter());
+        factory.setConsumerFactory(consumerFactory);
+        return factory;
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, PaymentFailedEvent> releaseInventoryRequestListenerFactory(ConsumerFactory<String, PaymentFailedEvent> consumerFactory) {
+
+        ConcurrentKafkaListenerContainerFactory<String, PaymentFailedEvent> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setRecordMessageConverter(new StringJsonMessageConverter());
         factory.setConsumerFactory(consumerFactory);

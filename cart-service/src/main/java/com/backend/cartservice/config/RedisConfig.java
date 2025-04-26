@@ -1,9 +1,7 @@
 package com.backend.cartservice.config;
 
+import com.backend.cartservice.domain.model.UserInformation;
 import com.backend.common.dto.CartItem;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
@@ -14,29 +12,34 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
 public class RedisConfig {
+    @Bean
+    public ReactiveRedisTemplate<String, CartItem> cartItemReactiveRedisTemplate(
+            ReactiveRedisConnectionFactory factory) {
+
+        StringRedisSerializer keySerializer = new StringRedisSerializer();
+        Jackson2JsonRedisSerializer<CartItem> valueSerializer =
+                new Jackson2JsonRedisSerializer<>(CartItem.class);
+
+        RedisSerializationContext<String, CartItem> context =
+                RedisSerializationContext.<String, CartItem>newSerializationContext(keySerializer)
+                        .value(valueSerializer)
+                        .build();
+
+        return new ReactiveRedisTemplate<>(factory, context);
+    }
 
     @Bean
-    public ReactiveRedisTemplate<String, CartItem> reactiveRedisTemplate(ReactiveRedisConnectionFactory factory) {
-        // Key serializer
+    public ReactiveRedisTemplate<String, UserInformation> userInformationReactiveRedisTemplate(
+            ReactiveRedisConnectionFactory factory) {
+
         StringRedisSerializer keySerializer = new StringRedisSerializer();
+        Jackson2JsonRedisSerializer<UserInformation> valueSerializer =
+                new Jackson2JsonRedisSerializer<>(UserInformation.class);
 
-        // ObjectMapper and Value serializer
-        ObjectMapper objectMapper = new ObjectMapper()
-                .registerModule(new JavaTimeModule())
-                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
-        Jackson2JsonRedisSerializer<CartItem> valueSerializer =
-                new Jackson2JsonRedisSerializer<>(objectMapper, CartItem.class);
-
-        // Use SerializationPair for the value
-        RedisSerializationContext.SerializationPair<CartItem> valuePair =
-                RedisSerializationContext.SerializationPair.fromSerializer(valueSerializer);
-
-        // Build context
-        RedisSerializationContext<String, CartItem> context = RedisSerializationContext
-                .<String, CartItem> newSerializationContext(keySerializer)
-                .value(valuePair)
-                .build();
+        RedisSerializationContext<String, UserInformation> context =
+                RedisSerializationContext.<String, UserInformation>newSerializationContext(keySerializer)
+                        .value(valueSerializer)
+                        .build();
 
         return new ReactiveRedisTemplate<>(factory, context);
     }

@@ -51,7 +51,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         TokenResponse tokenResponse;
         if(userRepository.existsByEmail(email)) {
             try {
-                tokenResponse=new TokenResponse(jwtUtil.generateToken(email,user.getAttribute("id"),user.getAuthorities()
+                tokenResponse=new TokenResponse(jwtUtil.generateToken(user.getAttribute("id"),user.getAttribute("name"),email,user.getAuthorities()
                         .stream()
                         .map(GrantedAuthority::getAuthority)
                         .collect(Collectors.toList())),"Bearer ",null,jwtUtil.getExpirationTime(),user.getAttribute("email"),user.getAttribute("name"), Set.of("ROLE_USER"));

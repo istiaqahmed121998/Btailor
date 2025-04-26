@@ -1,16 +1,18 @@
 package com.backend.inventoryservice.infrastructure.messaging;
 
-import com.backend.common.events.ReserveInventoryRequest;
+import com.backend.common.events.ReserveInventoryResponseEvent;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Component;
 
+@Component
 public class InventoryEventProducer {
-    private final KafkaTemplate<String, ReserveInventoryRequest> kafkaTemplate;
+    private final KafkaTemplate<String, ReserveInventoryResponseEvent> kafkaTemplate;
 
-    public InventoryEventProducer(KafkaTemplate<String, ReserveInventoryRequest> kafkaTemplate) {
+    public InventoryEventProducer(KafkaTemplate<String, ReserveInventoryResponseEvent> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    public void sendReserveRequest(ReserveInventoryRequest request) {
-        kafkaTemplate.send("inventory.reserve.request", request.orderId(), request);
+    public void publish(ReserveInventoryResponseEvent request) {
+        kafkaTemplate.send("InventoryReservedEvent", request.orderId(), request);
     }
 }

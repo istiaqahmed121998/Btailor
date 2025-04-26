@@ -1,6 +1,7 @@
 package com.backend.notificationservice.application.service;
 
-import com.backend.common.events.OrderCreatedEvent;
+import com.backend.common.events.OrderCompletedEvent;
+import com.backend.common.events.PaymentFailedEvent;
 import com.backend.common.events.UserCreatedEvent;
 import com.backend.notificationservice.domain.model.NotificationEvent;
 import com.backend.notificationservice.domain.model.NotificationType;
@@ -37,16 +38,45 @@ public class NotificationEventFactory {
                 NotificationType.EMAIL
         );
     }
-//
-//    public static NotificationEvent orderPush(OrderCreatedEvent event) {
-//        return new NotificationEvent(
-//                event.getBuyerId()),
-//                event.email(),
-//                "🛒 Order Placed",
-//                "order-confirmation",
-//                Map.of("name", event.name(), "orderId", event.orderId()),
-//                NotificationType.EMAIL
-//
-//        );
-//    }
+
+    public static NotificationEvent orderConfirmed(OrderCompletedEvent event) {
+        // build the template model
+        Map<String, Object> model = new HashMap<>();
+        model.put("txnId",         event.txnId());
+        model.put("buyerName",     event.buyerName());
+        model.put("paymentMethod", event.paymentMethod());
+        model.put("totalAmount",   event.totalAmount());
+        model.put("items",         event.items());
+
+        // create and return the notification
+        return new NotificationEvent(
+                event.buyerId(),
+                event.buyerEmail(),                // to
+                "Your Order is Confirmed!",        // subject
+                "order-completion",     // the FreeMarker template name
+                model, // data for the template
+                NotificationType.EMAIL
+        );
+    }
+    public static NotificationEvent paymentFailure(PaymentFailedEvent event) {
+        // 1. Build the template model
+        Map<String, Object> model = new HashMap<>();
+        model.put("id",            event.id());
+        model.put("buyerName",     event.buyerName());
+        model.put("buyerEmail",    event.buyerEmail());
+        model.put("paymentMethod", event.paymentMethod());
+        model.put("totalAmount",   event.totalAmount());
+        model.put("failureReason", event.failureReason());
+        model.put("items",         event.items());
+
+        // 2. Create and return the notification
+        return new NotificationEvent(
+                event.buyerId(),
+                event.buyerEmail(),              // to
+                "Payment Failed for Order “" + event.id() + "”", // subject
+                "payment-failure",    // your FreeMarker template
+                model,                            // data model for the template
+                NotificationType.EMAIL
+        );
+    }
 }

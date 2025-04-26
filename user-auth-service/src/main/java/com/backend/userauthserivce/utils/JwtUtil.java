@@ -21,7 +21,7 @@ public class JwtUtil {
     private static final long ACCESS_TOKEN_EXPIRY = 1000 * 60 * 60; // 60 minutes
     private static final long REFRESH_TOKEN_EXPIRY = 1000 * 60 * 60 * 24 * 3; // 3 days
 
-    private RSAPrivateKey getPrivateKey() throws Exception {
+    private RSAPrivateKey getPrivateKey() {
         try {
             ClassPathResource resource = new ClassPathResource("keys/private.pem");
             String key = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
@@ -57,10 +57,11 @@ public class JwtUtil {
         return (RSAPublicKey) kf.generatePublic(spec); // Corrected method call
     }
 
-    public String generateToken(String email,Long id,List<String> roles) throws Exception {
+    public String generateToken(Long id,String name,String email,List<String> roles) throws Exception {
         return Jwts.builder()
-                .claim("roles", roles)
                 .claim("id", id)
+                .claim("name", name )
+                .claim("roles", roles)
                 .setSubject(email)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRY))

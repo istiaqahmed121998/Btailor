@@ -23,7 +23,7 @@ public class JwtUtilTest {
         String email = "istiaq@example.com";
 
         // 🔐 Generate token
-        String token = jwtUtil.generateToken(email,1L, List.of("ROLE_ADMIN"));
+        String token = jwtUtil.generateToken(1L,"Istiaq",email, List.of("ROLE_ADMIN"));
         System.out.println("Generated Token: " + token);
 
         // ✅ Validate token

@@ -14,6 +14,6 @@ public class CheckoutPublisher {
     }
 
     public void publish(CartCheckedOutEvent event) {
-        kafkaTemplate.send("cart-checked-out",String.valueOf(event.getUserId()), event);
+        kafkaTemplate.send("CartCheckedOutEvent",String.valueOf(event.getUserId()), event);
     }
 }
