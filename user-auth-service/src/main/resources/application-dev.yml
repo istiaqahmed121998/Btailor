@@ -3,10 +3,12 @@ spring:
     name: auth-user-service
   cloud:
     consul:
-      enabled: false
+      host: localhost        # your Consul agent
+      port: 8500             # default Consul port
+      enabled: true          # turn Consul on
       discovery:
-        enabled: false
-        register: false
+        enabled: true        # allow discovery via Consul
+        register: true       # register this gateway in Consul
 
   datasource:
     url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}

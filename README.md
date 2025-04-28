@@ -214,7 +214,7 @@ mvn spring-boot:run
 - [x] Redis for cart management
 - [x] MongoDB for order storage
 - [x] **gRPC** for efficient communication between **order-service** and **payment-service**
-- [ ] Centralized service discovery with **Consul**
+- [x] Centralized service discovery with **Consul**
 - [ ] Distributed tracing (Sleuth + Zipkin)
 - [ ] Centralized logging (ELK stack)
 - [ ] Containerization (Docker/Kubernetes)
