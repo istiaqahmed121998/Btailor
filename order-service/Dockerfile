@@ -16,7 +16,7 @@ COPY pom.xml .
 COPY . ./
 
 # Build only this service and its dependencies (e.g., common-library)
-RUN ./mvnw -pl user-auth-service -am -DskipTests clean install
+RUN ./mvnw -pl order-service -am -DskipTests clean install
 # ------------------------------
 # Stage 2: Create runtime image
 # ------------------------------
@@ -25,10 +25,10 @@ FROM eclipse-temurin:17-jre-jammy
 WORKDIR /build
 
 # Copy built JAR from builder
-COPY --from=builder /build/user-auth-service/target/*.jar app.jar
+COPY --from=builder /build/order-service/target/*.jar app.jar
 
 # Expose the service port (adjust per service)
-EXPOSE 8081
+EXPOSE 8086
 
 # Start the service with profile from environment
 ENTRYPOINT ["java", "-Dspring.profiles.active=${SPRING_PROFILES_ACTIVE}", "-jar", "app.jar"]

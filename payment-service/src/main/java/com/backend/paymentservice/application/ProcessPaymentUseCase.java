@@ -15,9 +15,8 @@ public class ProcessPaymentUseCase {
         this.processor = processor;
         this.repository = repository;
     }
-
     @Transactional
-    public PaymentResult execute(String orderId, double amount, String method, long userId) {
+    public PaymentResult process(String orderId, double amount, String method, long userId) {
         PaymentResult result = processor.process(orderId, amount, method, userId);
         var tx = new PaymentTransaction();
         tx.setOrderId(orderId);

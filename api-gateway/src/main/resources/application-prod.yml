@@ -1,5 +1,81 @@
 spring:
   application:
     name: api-gateway
-  config:
-    import: optional:configserver:http://config-server:8888
+  cloud:
+    consul:
+      host: ${CONSUL_HOST:localhost}
+      port: ${CONSUL_PORT:8500}
+      enabled: true
+      discovery:
+        enabled: true
+        register: true
+    loadbalancer:
+      cache:
+        enabled: true
+        ttl: 30s
+        capacity: 256
+    gateway:
+      routes:
+        - id: auth-service
+          uri: lb://auth-user-service
+          predicates:
+            - Path=/api/auth/**,/api/user/**
+        - id: product-service
+          uri: lb://product-service
+          predicates:
+            - Path=/api/products/**,/api/categories/**
+        - id: inventory-service
+          uri: lb://inventory-service
+          predicates:
+            - Path=/api/inventory/**
+        - id: cart-service
+          uri: lb://cart-service
+          predicates:
+            - Path=/api/cart/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10 # tokens per second (how many requests are allowed per second)
+                redis-rate-limiter.burstCapacity: 20 # max tokens (how many requests are allowed in a burst)
+                key-resolver: '#{@ipAddressKeyResolver}' # Define how to identify the client (see next step)
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+
+# Logging (adjust for production)
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO
+    reactor.netty.http.client: INFO
+    org.springframework.web.server.adapter.HttpWebHandlerAdapter: INFO
+
+# Actuator (expose minimal endpoints)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+
+  endpoint:
+    health:
+      show-details: never
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans
+
+# Server configuration
+server:
+  port: ${SERVER_PORT:9000}              # Port from env (default: 9000)
+  ssl:                                   # Enable HTTPS in prod
+    enabled: ${SSL_ENABLED:false}
+    key-store: classpath:keystore.p12
+    key-store-password: ${SSL_KEYSTORE_PASSWORD:}
+    key-store-type: PKCS12
+    key-alias: gateway
+

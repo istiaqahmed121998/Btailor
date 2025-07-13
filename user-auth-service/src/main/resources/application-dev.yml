@@ -9,6 +9,11 @@ spring:
       discovery:
         enabled: true        # allow discovery via Consul
         register: true       # register this gateway in Consul
+          # Set a sensible health check interval. Default is often 10s.
+          # Only increase if your service can tolerate slower health updates.
+        healthCheckInterval: 20s # Example: every 20 seconds
+          # Ensure the health check critical timeout is appropriate
+        healthCheckCriticalTimeout: 30s
 
   datasource:
     url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
@@ -35,7 +40,8 @@ spring:
 #    password: ${DB_PASSWORD}
 #    locations: classpath:db/migration
 
-
+  kafka:
+    bootstrap-servers: ${KAFKA_HOST}:${KAFKA_PORT}
   security:
     oauth2:
       client:

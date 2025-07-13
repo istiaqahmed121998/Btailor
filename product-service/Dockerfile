@@ -1,25 +1,35 @@
-# Stage 1: Build the app using Maven
+# ------------------------------
+# Stage 1: Build the service
+# ------------------------------
 FROM maven:3.9.4-eclipse-temurin-17 AS builder
 
-WORKDIR /app
+# Set working directory for the build
+WORKDIR /build
 
-# Copy the pom.xml and download dependencies first (cached layer)
-COPY pom.xml .
-COPY .mvn .mvn
+# Copy the entire monorepo (safe if .dockerignore excludes target folders)
+COPY . ./
+
+# Copy Maven wrapper and configs
 COPY mvnw .
-RUN ./mvnw dependency:go-offline
+RUN chmod +x mvnw  #  Critical fix
+COPY .mvn .mvn
+COPY pom.xml .
 
-# Copy the rest of the source and build the app
-COPY src ./src
-RUN ./mvnw clean package -DskipTests
 
-# Stage 2: Run the app
-FROM eclipse-temurin:17-jdk-jammy
+# Build only this service and its dependencies (e.g., common-library)
+RUN ./mvnw -pl product-service -am -DskipTests clean install
+# ------------------------------
+# Stage 2: Create runtime image
+# ------------------------------
+FROM eclipse-temurin:17-jre-jammy
 
-WORKDIR /app
+WORKDIR /build
 
-COPY --from=builder /app/target/*.jar product-service.jar
+# Copy built JAR from builder
+COPY --from=builder /build/product-service/target/*.jar app.jar
 
+# Expose the service port (adjust per service)
 EXPOSE 8082
 
-ENTRYPOINT ["java", "-jar", "product-service.jar"]
+# Start the service with profile from environment
+ENTRYPOINT ["java", "-Dspring.profiles.active=${SPRING_PROFILES_ACTIVE}", "-jar", "app.jar"]

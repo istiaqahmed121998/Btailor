@@ -19,7 +19,9 @@ public class SecurityConfig {
                 .securityMatcher("/**")
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET,"/public/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/inventory/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/actuator/health/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/actuator/health").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/inventory/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth -> oauth
@@ -37,7 +39,6 @@ public class SecurityConfig {
         JwtGrantedAuthoritiesConverter rolesConverter = new JwtGrantedAuthoritiesConverter();
         rolesConverter.setAuthorityPrefix(""); // required!
         rolesConverter.setAuthoritiesClaimName("roles");
-
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
         converter.setJwtGrantedAuthoritiesConverter(rolesConverter);
         return converter;

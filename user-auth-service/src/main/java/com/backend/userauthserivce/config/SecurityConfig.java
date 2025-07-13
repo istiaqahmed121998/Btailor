@@ -18,6 +18,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeAuthenticationProvider;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -41,6 +42,7 @@ public class SecurityConfig {
     private final UserRepository userRepository;
     private final AuthService authService;
     private final PasswordEncoder passwordEncoder;
+
     public SecurityConfig(JwtUtil jwtUtil, UserService userService, UserRepository userRepository, @Lazy AuthService authService, PasswordEncoder passwordEncoder) {
         this.jwtUtil = jwtUtil;
         this.userService = userService; // Inject UserService directly
@@ -71,9 +73,12 @@ public class SecurityConfig {
                         .requestMatchers("/login","/api/auth/**","/api/auth/google","/actuator/health").permitAll() // Allow auth endpoints
                         .anyRequest().authenticated() // Require auth for other endpoints
                 )
-                .oauth2Login(oauth2 -> oauth2
+                .oauth2Login(oauth2 -> {
+                    oauth2
                         .userInfoEndpoint(userInfo -> userInfo.oidcUserService(new OidcUserService()))
-                        .successHandler(oAuth2LoginSuccessHandler()) // Custom handler to generate JWT
+                        .successHandler(oAuth2LoginSuccessHandler());
+                    oauth2.withObjectPostProcessor(new RateLimitedAuthenticationProviderProcessor<>(OidcAuthorizationCodeAuthenticationProvider.class));
+                }// Custom handler to generate JWT
                 )
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(new CustomUserAuthenticationEntryPoint()) // Custom 401 response
@@ -103,6 +108,7 @@ public class SecurityConfig {
         provider.setUserDetailsService(userService);
         provider.setPasswordEncoder(passwordEncoder);
         return provider;
+
     }
 
     @Bean

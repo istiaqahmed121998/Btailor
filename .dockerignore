@@ -1,0 +1,39 @@
+# Maven build output
+**/target/
+**/build/
+
+# IntelliJ / VSCode / Eclipse project files
+.idea/
+.vscode/
+*.iml
+.project
+.classpath
+.settings/
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# Logs and temp files
+*.log
+**/logs/
+**/tmp/
+**/.cache/
+
+# Test output and coverage
+**/test-output/
+**/jacoco.exec
+**/coverage/
+
+# Node/npm/yarn (if you have frontend)
+**/node_modules/
+**/dist/
+**/.next/
+
+# Environment files (optional if not used in build)
+*.env
+**/.m2
+**/target
+**/*.iml
+**/.idea
+**/.git

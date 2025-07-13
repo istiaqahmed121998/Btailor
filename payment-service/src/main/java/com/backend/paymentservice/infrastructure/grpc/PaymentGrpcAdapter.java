@@ -15,7 +15,7 @@ public class PaymentGrpcAdapter extends PaymentServiceGrpc.PaymentServiceImplBas
 
     @Override
     public void processPayment(PaymentProto.PaymentRequest req, StreamObserver<PaymentProto.PaymentResponse> obs) {
-        PaymentResult result = useCase.execute(
+        PaymentResult result = useCase.process(
                 req.getOrderId(), req.getAmount(), req.getMethod(), req.getUserId()
         );
         PaymentProto.PaymentResponse resp = PaymentProto.PaymentResponse.newBuilder()

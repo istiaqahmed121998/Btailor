@@ -29,6 +29,16 @@ spring:
           uri: lb://cart-service
           predicates:
             - Path=/api/cart/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10 # tokens per second (how many requests are allowed per second)
+                redis-rate-limiter.burstCapacity: 20 # max tokens (how many requests are allowed in a burst)
+                key-resolver: '#{@ipAddressKeyResolver}' # Define how to identify the client (see next step)
+  data:
+    redis:
+      host: localhost
+      port: 6379
 logging:
   level:
     org.springframework.cloud.gateway: DEBUG
@@ -41,3 +51,4 @@ management:
         include: health
 server:
   port: 9000
+

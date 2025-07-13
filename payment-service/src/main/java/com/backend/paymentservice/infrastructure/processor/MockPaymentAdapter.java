@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import java.util.UUID;
 
 @Component
-@Profile("dev")
+@Profile("prod")
 public class MockPaymentAdapter implements PaymentProcessor {
     @Override
     public PaymentResult process(String orderId, double amount, String method, long userId) {
