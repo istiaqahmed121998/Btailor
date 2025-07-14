@@ -1,0 +1,56 @@
+spring:
+  application:
+    name: notification-service
+  cloud:
+    consul:
+      host: ${CONSUL_HOST:localhost}
+      port: ${CONSUL_PORT:8500}
+      enabled: true
+      discovery:
+        prefer-ip-address: true
+        enabled: true
+        register: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          public-key-location: classpath:keys/public.pem
+  r2dbc:
+    url: r2dbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=require
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+  flyway:
+    enabled: true
+    clean-disabled: false              # ✅ Allow flyway:clean during dev
+    validate-on-migrate: false         # ✅ Skip strict validation (e.g., you might tweak old SQL files)
+    baseline-on-migrate: false         # ❌ Not usually needed in dev (start fresh)
+    out-of-order: true                 # ✅ Allow applying missed migrations (V3 after V5 is OK)
+    locations: classpath:db/migration
+  sql:
+    init:
+      mode: always
+  kafka:
+    bootstrap-servers: ${KAFKA_HOST}:${KAFKA_PORT}
+    consumer:
+      group-id: notification-service-group
+      auto-offset-reset: latest           # Prefer latest in prod
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        spring.json.trusted.packages: "com.backend.common.events"
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail.smtp.auth: false
+      mail.smtp.starttls.enable: true
+  freemarker:
+    template-loader-path: classpath:/templates/
+    suffix: .ftl
+logging:
+  level:
+    org.apache.kafka: WARN
+server:
+  port: 8087

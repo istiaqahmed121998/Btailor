@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: cart-service
+  cloud:
+    consul:
+      host: ${CONSUL_HOST:localhost}
+      port: ${CONSUL_PORT:8500}
+      enabled: true
+      discovery:
+        enabled: true
+        register: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          public-key-location: classpath:keys/public.pem
+  kafka:
+    consumer:
+      bootstrap-servers: ${KAFKA_HOST}:${KAFKA_PORT}
+      group-id: cart-service-group
+      auto-offset-reset: latest           # Prefer latest in prod
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+      properties:
+        spring.json.trusted.packages: "com.backend.common.events"
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:secret123}
+
+service:
+  product:
+    url: lb://product-service
+  inventory:
+    url: lb://inventory-service
+
+server:
+  port: 8084
