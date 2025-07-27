@@ -1,4 +1,4 @@
-package com.backend.userauthserivce;
+package com.backend.userauthserivce.UnitTest;
 
 
 import com.backend.userauthserivce.utils.JwtUtil;

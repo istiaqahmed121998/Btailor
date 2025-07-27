@@ -4,9 +4,9 @@
 set -e
 
 # Load environment variables from .env
-if [ -f .env ]; then
+if [ -f .env.prod ]; then
   echo "Loading environment variables from .env..."
-  export $(grep -v '^#' .env | xargs)
+  export $(grep -v '^#' .env.prod | xargs)
 else
   echo "❌ .env file not found. Please create one with DB credentials."
   exit 1

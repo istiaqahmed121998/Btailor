@@ -3,19 +3,22 @@ services:
   # Auth Service
   # ==========================
   auth-service:
-    image:
-      zenithjhony/btailor-auth-service:latest
+    build:
+      context: .
+      dockerfile: user-auth-service/Dockerfile
     depends_on:
       api-gateway:
         condition: service_healthy
       redis:
-        condition: service_started
+        condition: service_healthy
       kafka:
-        condition: service_started
+        condition: service_healthy
       consul:
-        condition: service_started
+        condition: service_healthy
       zipkin:
-        condition: service_started
+        condition: service_healthy
+      notification-service:
+        condition: service_healthy
     env_file:
       - ./user-auth-service/.env.prod
     healthcheck:
@@ -37,14 +40,6 @@ services:
       context: .
       dockerfile: notification-service/Dockerfile
     depends_on:
-      auth-service:
-        condition: service_healthy
-      product-service:
-        condition: service_healthy
-      inventory-service:
-        condition: service_healthy
-      order-service:
-        condition: service_healthy
       kafka:
         condition: service_started
       consul:
@@ -134,7 +129,6 @@ services:
       - ./payment-service/.env.prod
     expose:
       - "8085"
-      - "9090:9090"
     networks:
       - backend
   order-service:
@@ -186,6 +180,11 @@ services:
     command: consul agent -dev -client=0.0.0.0
     networks:
       - backend
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8500/v1/status/leader" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # ==========================
   # Api Gateway
@@ -246,9 +245,12 @@ services:
     environment:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9093
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:9093  # Different ports for each listener
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:9093
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
     networks:
       - backend
     depends_on:
@@ -274,7 +276,7 @@ services:
     healthcheck:
       # The command Docker runs inside the container to check its health.
       # 'curl -f' fails silently (returns a non-zero exit code) on server errors.
-      test: [ "CMD", "curl", "-f", "http://localhost:9411/health" ]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9411/health || exit 1"]
       interval: 30s       # How often to run the check.
       timeout: 10s        # How long to wait for a response.
       retries: 3          # Number of consecutive failures to be considered "unhealthy".

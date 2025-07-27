@@ -16,7 +16,7 @@ COPY pom.xml .
 COPY . ./
 
 # Build only this service and its dependencies (e.g., common-library)
-RUN ./mvnw -pl inventory-service -am -DskipTests clean install
+RUN mvn -pl inventory-service -am -DskipTests clean install
 # ------------------------------
 # Stage 2: Create runtime image
 # ------------------------------

@@ -62,7 +62,8 @@ public class ApplicationCartService {
     public Mono<Void> checkout(Long userId, String shippingAddress, String paymentMethod) {
         return redisRepository.getCartItems(userId).collectList()
                 .flatMap(items -> {
-                    if (items.isEmpty()) return Mono.error(new CartEmptyException());
+                    if (items.isEmpty())
+                        return Mono.error(new CartEmptyException());
                     List<Mono<CartItem>> itemMonos = items.stream().map(item ->
                             productWebClient.getSnapshot(item.getVariantSku())
                                     .map(snapshot -> {

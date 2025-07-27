@@ -1,6 +1,7 @@
 package com.backend.notificationservice.application.service;
 
 import com.backend.common.events.OrderCompletedEvent;
+import com.backend.common.events.OtpGeneratedEvent;
 import com.backend.common.events.PaymentFailedEvent;
 import com.backend.common.events.UserCreatedEvent;
 import com.backend.notificationservice.domain.model.NotificationEvent;
@@ -76,6 +77,24 @@ public class NotificationEventFactory {
                 "Payment Failed for Order “" + event.id() + "”", // subject
                 "payment-failure",    // your FreeMarker template
                 model,                            // data model for the template
+                NotificationType.EMAIL
+        );
+    }
+
+    public static NotificationEvent forOtp(OtpGeneratedEvent event) {
+        // 1. Build the template model
+        Map<String, Object> model = new HashMap<>();
+        model.put("otpCode", event.otpCode());
+        // You could add other details here, like a user's name if it were in the event
+        // model.put("name", event.getUserName());
+
+        // 2. Create and return the notification details
+        return new NotificationEvent(
+                event.userId(),
+                event.email(), // to
+                "Your Password Reset Code",                     // subject
+                "otp-password-reset",                           // your email template name
+                model,                                        // data model for the template
                 NotificationType.EMAIL
         );
     }

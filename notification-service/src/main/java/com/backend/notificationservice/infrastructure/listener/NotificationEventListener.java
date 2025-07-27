@@ -1,6 +1,7 @@
 package com.backend.notificationservice.infrastructure.listener;
 
 import com.backend.common.events.OrderCompletedEvent;
+import com.backend.common.events.OtpGeneratedEvent;
 import com.backend.common.events.PaymentFailedEvent;
 import com.backend.common.events.UserCreatedEvent;
 import com.backend.notificationservice.application.service.NotificationApplicationService;
@@ -29,7 +30,7 @@ public class NotificationEventListener {
         this.notificationLogger = notificationLogger;
     }
 
-    @KafkaListener(topics = "user-events", groupId = "notification-service-group")
+    @KafkaListener(topics = "userEvents", groupId = "notification-service-group")
     public void listenUserCreated(ConsumerRecord<String, String> userRecord) throws JsonProcessingException {
         UserCreatedEvent event = objectMapper.readValue(userRecord.value(), UserCreatedEvent.class);
         NotificationEvent notification = NotificationEventFactory.welcomeEmail(event);
@@ -64,6 +65,20 @@ public class NotificationEventListener {
                             log.info(e.getMessage());
                             return notificationLogger.logFailure(notification, paymentFailed.partition(), paymentFailed.offset(), "ORDER-CONFIRMED", "SYSTEM");
 
+                })
+                .subscribe();
+    }
+
+    @KafkaListener(topics = "OtpEvents", groupId = "notification-service-group")
+    public void listenOtpGenerate(ConsumerRecord<String, String> otpGenerated) throws JsonProcessingException {
+        OtpGeneratedEvent event = objectMapper.readValue(otpGenerated.value(), OtpGeneratedEvent.class);
+        NotificationEvent notification = NotificationEventFactory.forOtp(event);
+        log.info("Attempting to log notification: {}", notification);
+        appService.handle(notification)
+                .then(Mono.defer(() -> notificationLogger.logSuccess(notification, otpGenerated.partition(), otpGenerated.offset(), "OTP-SEND", "SYSTEM")))
+                .onErrorResume(e ->{
+                    log.error(e.toString());
+                    return notificationLogger.logFailure(notification, otpGenerated.partition(), otpGenerated.offset(), "OTP-SEND", "SYSTEM");
                 })
                 .subscribe();
     }

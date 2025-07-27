@@ -17,7 +17,7 @@ COPY pom.xml .
 
 
 # Build only this service and its dependencies (e.g., common-library)
-RUN ./mvnw -pl product-service -am -DskipTests clean install
+RUN mvn -pl product-service -am -DskipTests clean install
 # ------------------------------
 # Stage 2: Create runtime image
 # ------------------------------

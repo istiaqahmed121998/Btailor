@@ -1,8 +1,10 @@
 package com.backend.userauthserivce.domain.auth;
 
 import com.backend.common.exception.ValidationException;
+import com.backend.userauthserivce.utils.ApiResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -46,9 +48,17 @@ public class AuthController {
         return ResponseEntity.ok(token);
     }
 
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ApiResponse<String>> forgotUserPassword(@RequestBody @Valid PasswordChangeRequest passwordChangeRequest, BindingResult bindingResult) throws AccountLockedException {
+        if (bindingResult.hasErrors()) {
+            throw new ValidationException(INVALID_USER_DATA, bindingResult);
+        }
+        boolean isOtpSent=authService.initiatePasswordReset(passwordChangeRequest.email());
+        return isOtpSent ? ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.toString(), "Otp has been sent", "Otp has been sent")): ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/refresh")
     public ResponseEntity<AccessTokenResponse> refreshToken(@RequestParam @NotBlank String refreshToken) throws Exception {
-
         AccessTokenResponse token=authService.refreshAccessToken(refreshToken);
         return ResponseEntity.ok(token);
     }

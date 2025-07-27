@@ -11,7 +11,7 @@ RUN ./mvnw dependency:go-offline
 
 # Copy the rest of the source and build the app
 COPY src ./src
-RUN ./mvnw clean package -DskipTests
+RUN mvn clean package -DskipTests
 
 # Stage 2: Run the app
 FROM eclipse-temurin:17-jdk-jammy
@@ -20,6 +20,6 @@ WORKDIR /app
 
 COPY --from=builder /app/target/*.jar api-gateway.jar
 
-EXPOSE 8080
+EXPOSE 9000
 
 ENTRYPOINT ["java", "-jar", "api-gateway.jar"]

@@ -1,5 +1,6 @@
 package com.backend.userauthserivce.domain.auth;
 
+import com.backend.common.events.OtpGeneratedEvent;
 import com.backend.common.events.UserCreatedEvent;
 import com.backend.userauthserivce.domain.profile.ProfileModel;
 import com.backend.userauthserivce.domain.role.Role;
@@ -18,7 +19,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.security.auth.login.AccountLockedException;
+import java.security.SecureRandom;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -32,8 +37,11 @@ public class AuthService {
     private final UserRepository userRepository;
     private final LoginAttemptService loginAttemptService;
     private final UserEventPublisher userEventPublisher;
+    private final SecureRandom secureRandom = new SecureRandom();
+    private final OtpStoreRepository otpStoreRepository;
+    private final ForgetPasswordPublisher forgetPasswordPublisher;
     Logger logger = Logger.getLogger(getClass().getName());
-    public AuthService(PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, RoleRepository roleRepository, JwtUtil jwtUtil, UserRepository userRepository, LoginAttemptService loginAttemptService, UserEventPublisher userEventPublisher) {
+    public AuthService(PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, RoleRepository roleRepository, JwtUtil jwtUtil, UserRepository userRepository, LoginAttemptService loginAttemptService, UserEventPublisher userEventPublisher, OtpStoreRepository otpStoreRepository, ForgetPasswordPublisher forgetPasswordPublisher) {
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.roleRepository = roleRepository;
@@ -41,6 +49,8 @@ public class AuthService {
         this.userRepository = userRepository;
         this.loginAttemptService = loginAttemptService;
         this.userEventPublisher = userEventPublisher;
+        this.otpStoreRepository = otpStoreRepository;
+        this.forgetPasswordPublisher = forgetPasswordPublisher;
     }
     public TokenResponse loginUser(@Valid AuthRequest authRequest) throws AccountLockedException, AuthenticationException {
         // Check if the account is locked
@@ -120,5 +130,31 @@ public class AuthService {
         else {
             return new AccessTokenResponse(jwtUtil.generateToken(userModel.getId(),userModel.getProfile().getName(),email,userModel.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList())),jwtUtil.generateRefreshToken(email));
         }
+    }
+
+    public boolean initiatePasswordReset(String email) {
+
+        Optional<UserModel> userOptional = userRepository.findByEmail(email);
+        if (userOptional.isPresent()) {
+            UserModel user = userOptional.get();
+            String otpCode = String.valueOf(100000 + secureRandom.nextInt(900000)); // 6-digit OTP
+
+            OtpStore otpStore = new OtpStore();
+            otpStore.setUser(user);
+            otpStore.setOtpCode(otpCode);
+            otpStore.setExpiresAt(Instant.now().plus(10, ChronoUnit.MINUTES)); // 10-minute expiry
+
+            otpStoreRepository.save(otpStore);
+            OtpGeneratedEvent otpGeneratedEvent = new OtpGeneratedEvent(user.getId(),user.getEmail(),otpCode);
+            forgetPasswordPublisher.publishOtp(otpGeneratedEvent);
+            // --- Send Email ---
+            // SimpleMailMessage message = new SimpleMailMessage();
+            // message.setTo(email);
+            // message.setSubject("Your Password Reset Code");
+            // message.setText();
+            // mailSender.send(message);
+            return true;
+        }
+        return false;
     }
 }
