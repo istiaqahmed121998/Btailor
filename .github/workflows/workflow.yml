@@ -47,6 +47,6 @@ jobs:
           do
             IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/${SERVICE}:latest
             echo "Building image for $SERVICE..."
-            docker build --platform linux/amd64,linux/arm64 -t $IMAGE_NAME -f ./$SERVICE/Dockerfile .
+            docker buildx build --platform linux/amd64,linux/arm64 -t $IMAGE_NAME -f ./$SERVICE/Dockerfile .
             docker push $IMAGE_NAME
           done
