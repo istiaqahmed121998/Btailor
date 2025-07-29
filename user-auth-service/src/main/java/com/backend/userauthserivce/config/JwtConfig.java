@@ -1,6 +1,7 @@
 package com.backend.userauthserivce.config;
 
 import com.backend.userauthserivce.utils.JwtUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
@@ -16,6 +17,12 @@ import java.util.Base64;
 @Configuration
 public class JwtConfig {
 
+    @Value("${jwt.private.key.path}")
+    private String privateKeyPath;
+
+    @Value("${jwt.public.key.path}")
+    private String publicKeyPath;
+
     @Bean
     public JwtUtil jwtUtil() throws Exception {
         RSAPrivateKey privateKey = loadPrivateKeyFromFile();
@@ -25,7 +32,7 @@ public class JwtConfig {
     @Bean
     public RSAPrivateKey loadPrivateKeyFromFile() throws Exception {
         try {
-            ClassPathResource resource = new ClassPathResource("keys/private.pem");
+            ClassPathResource resource = new ClassPathResource(privateKeyPath);
             String key = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
 
             key = key.replace("-----BEGIN PRIVATE KEY-----", "")
@@ -42,7 +49,7 @@ public class JwtConfig {
     }
     @Bean
     public RSAPublicKey loadPublicKeyFromFile() throws Exception {
-        ClassPathResource resource = new ClassPathResource("keys/public.pem");
+        ClassPathResource resource = new ClassPathResource(publicKeyPath);
         String key = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
 
         // Remove PEM headers and footers, and any whitespace

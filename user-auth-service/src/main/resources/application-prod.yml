@@ -64,7 +64,7 @@ server:
     min-response-size: 2048
 management:
   tracing:
-    enabled: true
+    enabled: false
     sampling:
       probability: 1.0
   endpoints:
@@ -82,3 +82,10 @@ logging:
     level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
   level:
     root: INFO
+jwt:
+  private:
+    key:
+      path: ${JWT_PRIVATE_KEY_PATH}
+  public:
+    key:
+      path: ${JWT_PUBLIC_KEY_PATH}

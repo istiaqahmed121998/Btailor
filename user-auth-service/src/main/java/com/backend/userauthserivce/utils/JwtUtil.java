@@ -3,16 +3,9 @@ package com.backend.userauthserivce.utils;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
-
-import java.nio.charset.StandardCharsets;
-import java.security.KeyFactory;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 
@@ -29,13 +22,6 @@ public class JwtUtil {
         this.rsaPrivateKey = rsaPrivateKey;
     }
 
-//    private RSAPrivateKey getPrivateKey() {
-//
-//    }
-//
-//    private RSAPublicKey getPublicKey() throws Exception {
-//
-//    }
 
     public String generateToken(Long id,String name,String email,List<String> roles) throws Exception {
         return Jwts.builder()

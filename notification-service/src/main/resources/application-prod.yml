@@ -14,7 +14,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          public-key-location: classpath:keys/public.pem
+          public-key-location: classpath:${PUBLIC_KEY_LOCATION}
   r2dbc:
     url: r2dbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=require
     username: ${DB_USER}

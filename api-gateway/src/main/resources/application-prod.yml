@@ -15,6 +15,9 @@ spring:
         ttl: 30s
         capacity: 256
     gateway:
+      httpclient:
+        response-timeout: 10s
+        connect-timeout: 2
       routes:
         - id: auth-service
           uri: lb://auth-user-service
@@ -58,7 +61,7 @@ management:
       exposure:
         include: health,info
   tracing:
-    enabled: true
+    enabled: false
     sampling:
       probability: 1.0
 
@@ -68,6 +71,8 @@ management:
   zipkin:
     tracing:
       endpoint: http://zipkin:9411/api/v2/spans
+      connect-timeout: 5s
+      read-timeout: 10s
 
 # Server configuration
 server:

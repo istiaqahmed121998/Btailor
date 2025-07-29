@@ -1,3 +1,5 @@
+version: '3.9'
+
 services:
   # ==========================
   # Auth Service
@@ -19,10 +21,11 @@ services:
         condition: service_healthy
       notification-service:
         condition: service_healthy
+
     env_file:
       - ./user-auth-service/.env.prod
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8081/actuator/health" ]
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -36,18 +39,16 @@ services:
   # Notification Service
   # ==========================
   notification-service:
-    build:
-      context: .
-      dockerfile: notification-service/Dockerfile
+    image: zenithjhony/notification-service:latest
     depends_on:
       kafka:
-        condition: service_started
+        condition: service_healthy
       consul:
-        condition: service_started
+        condition: service_healthy
     env_file:
       - ./notification-service/.env.prod
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8087/actuator/health" ]
+      test: ["CMD", "curl", "-f", "http://localhost:8087/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -61,22 +62,20 @@ services:
   # Product Service
   # ==========================
   product-service:
-    build:
-      context: .
-      dockerfile: product-service/Dockerfile
+    image: zenithjhony/product-service:latest
     depends_on:
       inventory-service:
         condition: service_healthy
       redis:
-        condition: service_started
+        condition: service_healthy
       kafka:
-        condition: service_started
+        condition: service_healthy
       consul:
-        condition: service_started
+        condition: service_healthy
     env_file:
       - ./product-service/.env.prod
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8082/actuator/health" ]
+      test: ["CMD", "curl", "-f", "http://localhost:8082/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -85,94 +84,106 @@ services:
       - "8082"
     networks:
       - backend
+
+  # ==========================
+  # Cart Service
+  # ==========================
   cart-service:
-    build:
-      context: .
-      dockerfile: cart-service/Dockerfile
+    image: zenithjhony/cart-service:latest
     depends_on:
       redis:
-        condition: service_started
+        condition: service_healthy
       kafka:
         condition: service_healthy
       consul:
-        condition: service_started
+        condition: service_healthy
       inventory-service:
         condition: service_healthy
       product-service:
         condition: service_healthy
+    env_file:
+      - ./cart-service/.env.prod
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8084/actuator/health" ]
+      test: ["CMD", "curl", "-f", "http://localhost:8084/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 60s
-    env_file:
-      - ./cart-service/.env.prod
     expose:
       - "8084"
     networks:
       - backend
+
+  # ==========================
+  # Payment Service
+  # ==========================
   payment-service:
-    build:
-      context: .
-      dockerfile: payment-service/Dockerfile
+    image: zenithjhony/payment-service:latest
     depends_on:
       kafka:
         condition: service_healthy
+    env_file:
+      - ./payment-service/.env.prod
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8085/actuator/health" ]
+      test: ["CMD", "curl", "-f", "http://localhost:8085/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 60s
-    env_file:
-      - ./payment-service/.env.prod
     expose:
       - "8085"
     networks:
       - backend
+
+  # ==========================
+  # Order Service
+  # ==========================
   order-service:
-    build:
-      context: .
-      dockerfile: order-service/Dockerfile
+    image: zenithjhony/order-service:latest
     depends_on:
       kafka:
         condition: service_healthy
+    env_file:
+      - ./order-service/.env.prod
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8086/actuator/health" ]
+      test: ["CMD", "curl", "-f", "http://localhost:8086/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 60s
-    env_file:
-      - ./order-service/.env.prod
     expose:
       - "8086"
     networks:
       - backend
+
+  # ==========================
+  # Inventory Service
+  # ==========================
   inventory-service:
-    build:
-      context: .
-      dockerfile: inventory-service/Dockerfile
+    image: zenithjhony/inventory-service:latest
     depends_on:
       redis:
-        condition: service_started
+        condition: service_healthy
       kafka:
         condition: service_healthy
       consul:
-        condition: service_started
+        condition: service_healthy
+    env_file:
+      - ./inventory-service/.env.prod
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8083/actuator/health" ]
+      test: ["CMD", "curl", "-f", "http://localhost:8083/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 60s
-    env_file:
-      - ./inventory-service/.env.prod
     expose:
       - "8083"
     networks:
       - backend
+
+  # ==========================
+  # Consul
+  # ==========================
   consul:
     image: hashicorp/consul:1.15.4
     ports:
@@ -181,67 +192,74 @@ services:
     networks:
       - backend
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8500/v1/status/leader" ]
+      test: ["CMD", "curl", "-f", "http://localhost:8500/v1/status/leader"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   # ==========================
-  # Api Gateway
+  # API Gateway
   # ==========================
-
   api-gateway:
-    build: ./api-gateway
+    build:
+      context: .
+      dockerfile: api-gateway/Dockerfile
     ports:
-      - "9000:9000"
+      - "9000:8080"
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - REDIS_PASSWORD=my_secure_password_123!
       - SPRING_PROFILES_ACTIVE=prod
       - CONSUL_HOST=consul
+      - SERVER_PORT=8080
+    depends_on:
+      consul:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      zipkin:
+        condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:9000/actuator/health" ]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 60s
-    depends_on:
-      consul:
-        condition: service_started
-      redis:
-        condition: service_healthy
     networks:
       - backend
+
+  # ==========================
+  # Redis
+  # ==========================
   redis:
     image: redis:alpine
     container_name: redis
     restart: unless-stopped
+    env_file:
+      - .env
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
     healthcheck:
-      test: [ "CMD-SHELL", "redis-cli -p 6379 -a ${REDIS_PASSWORD} ping | grep PONG" ]
+      test: ["CMD-SHELL", "redis-cli -p 6379 -a ${REDIS_PASSWORD} ping | grep PONG"]
       interval: 1s
       timeout: 3s
       retries: 5
-    env_file:
-      - .env
-    ports:
-      - "6381:6379"
-    volumes:
-      - redis_data:/data
     networks:
       - backend
-    command: redis-server --requirepass ${REDIS_PASSWORD}  # Hardcoded
+
+  # ==========================
+  # Kafka
+  # ==========================
   kafka:
     image: confluentinc/cp-kafka:7.4.0
-    healthcheck:
-      test: |
-        kafka-broker-api-versions --bootstrap-server localhost:9092 2>/dev/null || exit 1
-      interval: 10s
-      timeout: 10s
-      retries: 10
-      start_period: 40s
+    depends_on:
+      - zookeeper
     ports:
-      - "9093:9093"  # Host:Container port for PLAINTEXT_HOST
+      - "9093:9093"
     environment:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9093
@@ -251,10 +269,18 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:9092 2>/dev/null || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 40s
     networks:
       - backend
-    depends_on:
-      - zookeeper
+
+  # ==========================
+  # Zookeeper
+  # ==========================
   zookeeper:
     image: confluentinc/cp-zookeeper:7.9.1
     environment:
@@ -263,24 +289,25 @@ services:
     networks:
       - backend
 
+  # ==========================
+  # Zipkin
+  # ==========================
   zipkin:
-    image: openzipkin/zipkin
+    image: openzipkin/zipkin:2.24.3
     container_name: zipkin
     ports:
       - "9411:9411"
     environment:
       - JAVA_OPTS=-Xms512m -Xmx512m
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9411/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
     networks:
       - backend
-    healthcheck:
-      # The command Docker runs inside the container to check its health.
-      # 'curl -f' fails silently (returns a non-zero exit code) on server errors.
-      test: ["CMD-SHELL", "wget -qO- http://localhost:9411/health || exit 1"]
-      interval: 30s       # How often to run the check.
-      timeout: 10s        # How long to wait for a response.
-      retries: 3          # Number of consecutive failures to be considered "unhealthy".
-      start_period: 15s   # Grace period for the container to start before checks begin
 
 volumes:
   redis_data:
