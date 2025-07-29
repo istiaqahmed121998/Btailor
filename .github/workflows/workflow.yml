@@ -42,7 +42,6 @@ jobs:
       - name: Build and push Docker images
         run: |
           # List of services
-#          SERVICES="user-auth-service product-service cart-service inventory-service notification-service payment-service order-service api-gateway"
           SERVICES="user-auth-service notification-service"
           for SERVICE in $SERVICES
           do
