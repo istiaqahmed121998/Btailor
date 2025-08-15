@@ -68,3 +68,5 @@ node_modules/
 *.bak
 *.tmp
 product-service/src/main/resources/*.json
+# Add this line to your .gitignore file
+product-service/src/main/resources/silken-slice-465814-r2-16aa2c332fe4.json
