@@ -67,3 +67,4 @@ node_modules/
 *.swp
 *.bak
 *.tmp
+product-service/src/main/resources/*.json
