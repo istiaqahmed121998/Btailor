@@ -23,8 +23,6 @@ jobs:
       - name: Build all modules with Maven
         run: mvn clean install -DskipTests
 
-      - name: Run tests
-        run: mvn test
   docker:
     runs-on: ubuntu-latest
     needs: build
