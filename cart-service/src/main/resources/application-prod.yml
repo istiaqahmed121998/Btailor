@@ -13,7 +13,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          public-key-location: classpath:keys/public.pem
+          public-key-location: classpath:${PUBLIC_KEY_LOCATION}
   kafka:
     consumer:
       bootstrap-servers: ${KAFKA_HOST}:${KAFKA_PORT}
@@ -29,6 +29,9 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:secret123}
+  threads:
+    virtual:
+      enabled: true
 
 service:
   product:

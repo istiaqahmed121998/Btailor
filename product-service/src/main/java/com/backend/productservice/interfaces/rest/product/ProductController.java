@@ -43,6 +43,7 @@ public class ProductController {
         if (bindingResult.hasErrors()) {
             throw new ValidationException(INVALID_PRODUCT_DATA, bindingResult);
         }
+        System.out.println(dto);
         Product product =productApplicationService.createProduct(dto,userId);
         ProductResponse productResponse= ProductMapper.toProductResponse(product);
         return new ResponseEntity<>(new ApiResponse<>(HttpStatus.CREATED.toString(),"Product has been created",productResponse), HttpStatus.CREATED);

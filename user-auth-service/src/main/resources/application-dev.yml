@@ -1,4 +1,7 @@
 spring:
+  threads:
+    virtual:
+      enabled: true
   application:
     name: auth-user-service
   cloud:
@@ -26,7 +29,6 @@ spring:
     baseline-on-migrate: false         # ❌ Not usually needed in dev (start fresh)
     out-of-order: true                 # ✅ Allow applying missed migrations (V3 after V5 is OK)
     locations: classpath:db/migration
-
   jpa:
     hibernate:
       ddl-auto: update
@@ -58,9 +60,14 @@ spring:
             authorization-uri: https://accounts.google.com/o/oauth2/auth
             token-uri: https://oauth2.googleapis.com/token
             user-info-uri: https://openidconnect.googleapis.com/v1/userinfo
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:secret123}
 
 server:
-  port: 8081
+  port: 8085
   error:
     include-message: always
     include-binding-errors: always

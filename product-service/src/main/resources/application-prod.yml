@@ -1,11 +1,14 @@
 spring:
   application:
     name: product-service
+  threads:
+    virtual:
+      enabled: true
   security:
     oauth2:
       resourceserver:
         jwt:
-          public-key-location: classpath:keys/public.pem
+          public-key-location: classpath:${PUBLIC_KEY_LOCATION}
   cloud:
     consul:
       host: ${CONSUL_HOST:localhost}
@@ -44,6 +47,11 @@ management:
       show-details: always
 logging:
   level:
+    org:
+      springframework:
+        transaction: trace
+      hibernate:
+        Transaction: trace
     root: INFO
 cloudinary:
   cloud-name: ${CLOUDINARY_CLOUD_NAME}
@@ -53,3 +61,39 @@ cloudinary:
 inventory:
   service:
     url: ${INVENTORY_URL}
+
+filestorage:
+  provider: ${STORAGE_OPTION}
+
+gcp:
+  credentials:
+    # Either let GOOGLE_APPLICATION_CREDENTIALS env var point to a file,
+    # or mount the file in a Kubernetes/Docker secret
+    path: ${GCP_CREDENTIALS_PATH:}
+  bucket:
+    name: ${GCP_BUCKET_NAME}
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        sliding-window-size: 20
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        minimum-number-of-calls: 10
+    instances:
+      inventory-service:
+        base-config: default
+  timelimiter:
+    instances:
+      inventory-service:
+        timeout-duration: 3s
+
+feign:
+  circuitbreaker:
+    enabled: true
+  client:
+    config:
+      inventory-service:
+        connectTimeout: 3000
+        readTimeout: 5000

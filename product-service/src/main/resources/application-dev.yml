@@ -6,6 +6,10 @@ spring:
       resourceserver:
         jwt:
           public-key-location: classpath:keys/public.pem
+  servlet:
+    multipart:
+      max-file-size: 50MB   # increase as needed
+      max-request-size: 50MB
   cloud:
     consul:
       host: localhost        # your Consul agent
@@ -14,6 +18,9 @@ spring:
       discovery:
         enabled: true        # allow discovery via Consul
         register: true       # register this gateway in Consul
+    openfeign:
+      circuitbreaker:
+        enabled: true
   datasource:
     url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
     username: ${DB_USER}
@@ -44,13 +51,71 @@ management:
       show-details: always
 logging:
   level:
-    org.springframework.security: DEBUG
+    org.springframework.web.client.RestTemplate: DEBUG
+    com.netflix.loadbalancer: DEBUG
+    feign: TRACE
+    org.springframework.cloud.openfeign: TRACE
+    feign.codec: TRACE
+    feign.Feign: TRACE
+    com.backend.productservice.clients.InventoryClient: DEBUG
+
+    # Load balancer/retry mechanisms
+    org.springframework.cloud.loadbalancer: DEBUG
+    org.springframework.retry: DEBUG
+    org.springframework.cloud.netflix.ribbon: DEBUG
+    io.github.resilience4j: DEBUG
+    org.springframework.cloud.circuitbreaker.resilience4j: DEBUG
+    # HTTP client layer
+
+    feign.okhttp: DEBUG              # For OKHttp
 cloudinary:
   cloud-name: dooadf4kx
   api-key: 463342149666781
   api-secret: zy9I5PXnWhM9KmHHzlysr-HV-R0
 
-inventory:
-  service:
-    url: http://localhost:8083
 
+filestorage:
+  provider: gcs
+
+gcp:
+  credentials:
+    path: /Users/istiaqahmed/IdeaProjects/bTailor/product-service/src/main/resources/silken-slice-465814-r2-16aa2c332fe4.json
+  bucket:
+    name: btailor-store
+resilience4j:
+  circuitbreaker:
+    # This 'configs' section defines reusable configuration templates.
+    configs:
+      # We are defining a template named 'default'. This will be applied to any
+      # circuit breaker that doesn't have a more specific configuration.
+      default:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        # This setting is important for testing, it makes the CB trip even if traffic is low
+        minimum-number-of-calls: 5
+
+    # You can keep this block, but the Feign client will use the 'default' config above.
+    # We are associating the 'default' config with our specific instance.
+    instances:
+      inventory-service:
+        base-config: default
+    timelimiter:
+      instances:
+        inventory-service:
+          timeout-duration: 4s
+
+#feign:
+#  client:
+#    config:
+#      inventory-service: # The name of your Feign client
+#        connectTimeout: 5000   # 5 seconds
+#        readTimeout: 10000     # 10 seconds
+#  timelimiter:
+#    instances:
+#      inventory-service:
+#        timeout-duration: 4s
+#feign:
+#  circuitbreaker:
+#    # This property enables Resilience4J (or any compliant circuit breaker on the classpath) for Feign
+#    enabled: true

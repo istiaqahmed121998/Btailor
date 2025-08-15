@@ -27,6 +27,9 @@ spring:
       port: 9090
       reflection:
         enabled: true
+  threads:
+    virtual:
+      enabled: true
 server:
   port: 8085
   error:

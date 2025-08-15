@@ -3,30 +3,22 @@ package com.backend.userauthserivce.utils;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.stereotype.Service;
+
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Date;
 import java.util.List;
 
-@Service
-public class JwtUtil {
+
+public record JwtUtil(RSAPublicKey rsaPublicKey, RSAPrivateKey rsaPrivateKey) {
     private static final long ACCESS_TOKEN_EXPIRY = 1000 * 60 * 60; // 60 minutes
     private static final long REFRESH_TOKEN_EXPIRY = 1000 * 60 * 60 * 24 * 3; // 3 days
 
-    private final RSAPublicKey rsaPublicKey;
-    private final RSAPrivateKey rsaPrivateKey;
 
-    public JwtUtil(RSAPublicKey rsaPublicKey, RSAPrivateKey rsaPrivateKey) {
-        this.rsaPublicKey = rsaPublicKey;
-        this.rsaPrivateKey = rsaPrivateKey;
-    }
-
-
-    public String generateToken(Long id,String name,String email,List<String> roles) throws Exception {
+    public String generateToken(Long id, String name, String email, List<String> roles) throws Exception {
         return Jwts.builder()
                 .claim("id", id)
-                .claim("name", name )
+                .claim("name", name)
                 .claim("roles", roles)
                 .setSubject(email)
                 .setIssuedAt(new Date())
@@ -35,7 +27,7 @@ public class JwtUtil {
                 .compact();
     }
 
-    public String extractEmail(String token) throws Exception {
+    public String extractEmail(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(rsaPublicKey)
                 .build()
@@ -57,7 +49,8 @@ public class JwtUtil {
             throw new RuntimeException(e);
         }
     }
-    public String generateRefreshToken(String username) throws Exception {
+
+    public String generateRefreshToken(String username) {
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())

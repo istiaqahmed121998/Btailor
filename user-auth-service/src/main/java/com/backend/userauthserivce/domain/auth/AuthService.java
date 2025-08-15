@@ -8,6 +8,8 @@ import com.backend.userauthserivce.domain.role.RoleRepository;
 import com.backend.userauthserivce.domain.user.UserModel;
 import com.backend.userauthserivce.domain.user.UserRepository;
 import com.backend.userauthserivce.utils.JwtUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import jakarta.validation.Valid;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,15 +19,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import javax.security.auth.login.AccountLockedException;
 import java.security.SecureRandom;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,10 +35,11 @@ public class AuthService {
     private final LoginAttemptService loginAttemptService;
     private final UserEventPublisher userEventPublisher;
     private final SecureRandom secureRandom = new SecureRandom();
-    private final OtpStoreRepository otpStoreRepository;
+
     private final ForgetPasswordPublisher forgetPasswordPublisher;
-    Logger logger = Logger.getLogger(getClass().getName());
-    public AuthService(PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, RoleRepository roleRepository, JwtUtil jwtUtil, UserRepository userRepository, LoginAttemptService loginAttemptService, UserEventPublisher userEventPublisher, OtpStoreRepository otpStoreRepository, ForgetPasswordPublisher forgetPasswordPublisher) {
+    private final PasswordResetHelper passwordResetHelper;
+    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
+    public AuthService(PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, RoleRepository roleRepository, JwtUtil jwtUtil, UserRepository userRepository, LoginAttemptService loginAttemptService, UserEventPublisher userEventPublisher, ForgetPasswordPublisher forgetPasswordPublisher, PasswordResetHelper passwordResetHelper) {
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.roleRepository = roleRepository;
@@ -49,8 +47,8 @@ public class AuthService {
         this.userRepository = userRepository;
         this.loginAttemptService = loginAttemptService;
         this.userEventPublisher = userEventPublisher;
-        this.otpStoreRepository = otpStoreRepository;
         this.forgetPasswordPublisher = forgetPasswordPublisher;
+        this.passwordResetHelper = passwordResetHelper;
     }
     public TokenResponse loginUser(@Valid AuthRequest authRequest) throws AccountLockedException, AuthenticationException {
         // Check if the account is locked
@@ -134,27 +132,43 @@ public class AuthService {
 
     public boolean initiatePasswordReset(String email) {
 
-        Optional<UserModel> userOptional = userRepository.findByEmail(email);
-        if (userOptional.isPresent()) {
-            UserModel user = userOptional.get();
-            String otpCode = String.valueOf(100000 + secureRandom.nextInt(900000)); // 6-digit OTP
+            String otpCode = generateOtp();
+            // Call the DB operation wrapped with timeout
+            UserModel user = passwordResetHelper.processForgotPassword(email,otpCode);
 
-            OtpStore otpStore = new OtpStore();
-            otpStore.setUser(user);
-            otpStore.setOtpCode(otpCode);
-            otpStore.setExpiresAt(Instant.now().plus(10, ChronoUnit.MINUTES)); // 10-minute expiry
+            if (user != null) {
+                // Build and publish the OTP event only if user found and DB succeeded
+             // extract OTP generation to a method
+                OtpGeneratedEvent otpGeneratedEvent = new OtpGeneratedEvent(user.getId(), user.getEmail(), otpCode);
+                forgetPasswordPublisher.publishOtp(otpGeneratedEvent);
+                return true;
+            } else {
+                // User not found
+                return false;
+            }
 
-            otpStoreRepository.save(otpStore);
-            OtpGeneratedEvent otpGeneratedEvent = new OtpGeneratedEvent(user.getId(),user.getEmail(),otpCode);
-            forgetPasswordPublisher.publishOtp(otpGeneratedEvent);
-            // --- Send Email ---
-            // SimpleMailMessage message = new SimpleMailMessage();
-            // message.setTo(email);
-            // message.setSubject("Your Password Reset Code");
-            // message.setText();
-            // mailSender.send(message);
-            return true;
+    }
+
+
+
+    // Helper method to generate OTP code (for cleaner code)
+    private String generateOtp() {
+        return String.valueOf(100000 + secureRandom.nextInt(900000));
+    }
+
+    public void resetPassword(String email, String otp, String password, String confirmPassword) {
+        if (!password.equals(confirmPassword)){
+            throw new IllegalArgumentException("Passwords do not match");
         }
-        return false;
+
+        if (!passwordResetHelper.verifyOtp(email, otp)) {
+            throw new IllegalArgumentException("Invalid or expired OTP");
+        }
+
+        UserModel user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        user.setPassword(passwordEncoder.encode(password));
+        userRepository.save(user);
     }
 }

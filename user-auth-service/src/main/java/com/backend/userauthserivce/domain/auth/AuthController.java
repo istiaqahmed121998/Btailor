@@ -48,7 +48,15 @@ public class AuthController {
         return ResponseEntity.ok(token);
     }
 
-    @PostMapping("/forgot-password")
+
+
+    @PostMapping("/refresh")
+    public ResponseEntity<AccessTokenResponse> refreshToken(@RequestParam @NotBlank String refreshToken) throws Exception {
+        AccessTokenResponse token=authService.refreshAccessToken(refreshToken);
+        return ResponseEntity.ok(token);
+    }
+
+    @PostMapping("/send-reset-otp")
     public ResponseEntity<ApiResponse<String>> forgotUserPassword(@RequestBody @Valid PasswordChangeRequest passwordChangeRequest, BindingResult bindingResult) throws AccountLockedException {
         if (bindingResult.hasErrors()) {
             throw new ValidationException(INVALID_USER_DATA, bindingResult);
@@ -57,9 +65,12 @@ public class AuthController {
         return isOtpSent ? ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.toString(), "Otp has been sent", "Otp has been sent")): ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/refresh")
-    public ResponseEntity<AccessTokenResponse> refreshToken(@RequestParam @NotBlank String refreshToken) throws Exception {
-        AccessTokenResponse token=authService.refreshAccessToken(refreshToken);
-        return ResponseEntity.ok(token);
+    @PostMapping("/reset-password")
+    public ResponseEntity<ApiResponse<String>> resetPasswordWithOtp(@RequestBody @Valid ResetPasswordRequest req, BindingResult bindingResult) throws AccountLockedException {
+        if (bindingResult.hasErrors()) {
+            throw new ValidationException(INVALID_USER_DATA, bindingResult);
+        }
+        authService.resetPassword(req.email(),req.otp(),req.password(),req.confirmPassword());
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.toString(), "Password has been changed", "Password has been changed"));
     }
 }

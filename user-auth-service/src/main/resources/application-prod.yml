@@ -1,6 +1,9 @@
 spring:
   application:
     name: auth-user-service
+  threads:
+    virtual:
+      enabled: true
   cloud:
     consul:
       host: ${CONSUL_HOST:localhost}
@@ -12,6 +15,18 @@ spring:
         register: true
   kafka:
     bootstrap-servers: ${KAFKA_HOST}:${KAFKA_PORT}
+    producer:
+        # Set the acknowledgment level here
+        # Options: 0, 1, or all
+        acks: all
+        compression-type: gzip
+      # Other common producer properties
+        key-serializer: org.apache.kafka.common.serialization.StringSerializer
+        value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+        properties:
+          # For true exactly-once semantics, enable idempotence.
+          # This requires acks=all, max.in.flight.requests.per.connection=5, and retries > 0.
+          enable.idempotence: true
   datasource:
     url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
     username: ${DB_USER}
@@ -63,10 +78,6 @@ server:
     mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
     min-response-size: 2048
 management:
-  tracing:
-    enabled: false
-    sampling:
-      probability: 1.0
   endpoints:
     web:
       exposure:
@@ -74,12 +85,7 @@ management:
   endpoint:
     health:
       show-details: never
-  zipkin:
-    tracing:
-      endpoint: http://${ZIPKIN_HOST:localhost}:${ZIPKIN_PORT:9411}/api/v2/spans
 logging:
-  pattern:
-    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
   level:
     root: INFO
 jwt:

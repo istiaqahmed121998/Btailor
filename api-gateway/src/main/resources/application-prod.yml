@@ -16,8 +16,8 @@ spring:
         capacity: 256
     gateway:
       httpclient:
-        response-timeout: 10s
-        connect-timeout: 2
+        response-timeout: 30s
+        connect-timeout: 5000
       routes:
         - id: auth-service
           uri: lb://auth-user-service

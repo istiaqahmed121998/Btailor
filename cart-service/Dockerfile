@@ -1,46 +1,31 @@
 # ------------------------------
 # Stage 1: Build the service
 # ------------------------------
-# Use a specific Maven version for reproducible builds
-FROM maven:3.9.4-eclipse-temurin-17 AS builder
+FROM maven:3.9.4-eclipse-temurin-21 AS builder
 
-# Set the working directory
 WORKDIR /build
 
-# --- Source Code Layer ---
-# For a monorepo, copy the entire project context first.
-# This ensures that when Maven builds its project "reactor", it can see all
-# the modules and their pom.xml files from the very beginning.
+# Copy Maven configuration first for dependency caching
 COPY . .
 
-# Make the Maven Wrapper executable
-# Check if mvnw exists before trying to make it executable
-RUN if [ -f mvnw ]; then chmod +x mvnw; fi
+# Download dependencies (cached in Docker layers)
+RUN mvn dependency:go-offline -B
 
-# --- Build Layer ---
-# Build the specific service and its dependencies ('-am').
-# Using 'package' is sufficient as we only need the JAR for the next stage.
-# This single command downloads dependencies and compiles the code. Docker caches
-# this layer, so it will be fast if no source files have changed.
-RUN mvn -pl cart-service -am -DskipTests clean install
+# Build only cart-service and its dependencies
+RUN mvn -pl cart-service -am -DskipTests clean package
 
 # ------------------------------
-# Stage 2: Create the final, minimal runtime image
+# Stage 2: Runtime image
 # ------------------------------
-# Use a distroless image for a smaller and more secure final image.
-FROM gcr.io/distroless/java17-debian11
+FROM gcr.io/distroless/java21:latest
 
-
-# Set the working directory for the application
 WORKDIR /app
 
-# Copy the built JAR from the 'builder' stage into the final image
-# Using the specific path to the JAR is more robust than a wildcard.
+# Copy the JAR from builder stage
 COPY --from=builder /build/cart-service/target/*.jar app.jar
 
-# Expose the port the service runs on
+# Expose the service port
 EXPOSE 8084
 
-# Define the command to run the application
-# The Spring profile canx be set via an environment variable at runtime.
+# Start the service with configurable Spring profile
 ENTRYPOINT ["java", "-Dspring.profiles.active=${SPRING_PROFILES_ACTIVE}", "-jar", "app.jar"]

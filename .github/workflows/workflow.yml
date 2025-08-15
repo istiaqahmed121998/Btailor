@@ -50,7 +50,7 @@ jobs:
 
       - name: Build and push Docker images
         run: |
-          SERVICES="user-auth-service notification-service"
+          SERVICES="user-auth-service product-service payment-service order-service inventory-service cart-service api-gateway notification-service "
           for SERVICE in $SERVICES
           do
             IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/${SERVICE}:latest

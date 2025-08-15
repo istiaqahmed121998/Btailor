@@ -3,6 +3,7 @@ package com.backend.productservice.infrastructure.filestorage;
 import com.backend.productservice.common.service.ImageStorageService;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -10,6 +11,7 @@ import java.io.IOException;
 import java.util.*;
 
 @Service
+@ConditionalOnProperty(name = "filestorage.provider", havingValue = "cloudinary")
 public class CloudinaryService implements ImageStorageService {
 
     private final Cloudinary cloudinary;
@@ -19,16 +21,19 @@ public class CloudinaryService implements ImageStorageService {
     }
 
 
-    public String uploadImage(MultipartFile file) throws IOException {
-        Map<?, ?> result = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+    public String uploadImage(MultipartFile file,String folder) throws IOException {
+        Map<?, ?> result = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap("folder", folder));
         return result.get("secure_url").toString();
     }
 
     public Set<String> uploadImages(List<MultipartFile> files) throws IOException {
         Set<String> urls = new HashSet<>();
         for (MultipartFile file : files) {
-            urls.add(uploadImage(file));
+            urls.add(uploadImage(file,"product_image"));
         }
         return urls;
     }
+
+
+
 }

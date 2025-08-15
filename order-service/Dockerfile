@@ -2,7 +2,7 @@
 # Stage 1: Build the service
 # ------------------------------
 # Use a specific Maven version for reproducible builds
-FROM maven:3.9.4-eclipse-temurin-17 AS builder
+FROM maven:3.9.4-eclipse-temurin-21 AS builder
 
 # Set the working directory
 WORKDIR /build
@@ -28,7 +28,7 @@ RUN mvn -pl order-service -am -DskipTests clean install
 # Stage 2: Create the final, minimal runtime image
 # ------------------------------
 # Use a distroless image for a smaller and more secure final image.
-FROM gcr.io/distroless/java17-debian11
+FROM gcr.io/distroless/java21:latest
 
 
 # Set the working directory for the application

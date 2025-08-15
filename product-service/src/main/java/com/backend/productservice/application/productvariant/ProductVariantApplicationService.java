@@ -11,8 +11,11 @@ import com.backend.productservice.domain.product.repository.ProductRepository;
 import com.backend.productservice.domain.product.service.SkuGenerator;
 import com.backend.productservice.domain.productvariant.model.ProductVariant;
 import com.backend.productservice.domain.productvariant.repository.ProductVariantRepository;
+import com.backend.productservice.exception.ServiceUnavailableException;
 import com.backend.productservice.infrastructure.feign.InventoryClient;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProductVariantApplicationService {
@@ -26,7 +29,8 @@ public class ProductVariantApplicationService {
         this.skuGenerator = skuGenerator;
         this.inventoryClient = inventoryClient;
     }
-
+    @Transactional(propagation = Propagation.REQUIRED)
+//    @CircuitBreaker(name = "inventory-service", fallbackMethod = "getInventoryFallback")
     public ProductVariant createProductVariant(Product product, ProductVariantRequest productVariantRequest) {
         ProductVariant productVariant=ProductVariantMapper.toProductVariant(productVariantRequest);
         String sku=skuGenerator.generate(
@@ -36,20 +40,34 @@ public class ProductVariantApplicationService {
         productVariant.setSku(sku);
         productVariant.setProduct(product);
         ProductVariant savedProductVariant = productVariantRepository.save(productVariant);
-        inventoryClient.initializeInventory(savedProductVariant.getSku(),productVariantRequest.stock());
-        return productVariantRepository.save(productVariant);
+//        try {
+//    } catch (Exception e) {
+//            // Log and throw transaction-aware exception
+//            throw new ServiceUnavailableException("Inventory service unavailable - transaction rolled back"+e.getMessage());
+//        }
+        inventoryClient.initializeInventory(savedProductVariant.getSku(), productVariantRequest.stock());
+        return savedProductVariant;
     }
 
-
+    @Transactional
     public ProductVariant addVariantToProduct(Long productId, ProductVariantRequest variantRequest) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product with id " + productId + " not found"));
 
         return createProductVariant(product, variantRequest);
     }
-
+    @Transactional(readOnly = true)
     public ProductSnapshotDto getProductVariant(String variantSku) {
         ProductVariant variant =productVariantRepository.findBySku(variantSku).orElseThrow(() -> new ResourceNotFoundException("Product Variant is not found"));
         return ProductSnapshotMapper.toSnapshot(variant.getProduct(), variant);
+    }
+    // The fallback that gets executed when the circuit is OPEN.
+    public ProductVariant getInventoryFallback(Product product, ProductVariantRequest productVariantRequest, Throwable t) {
+        // Log the error properly (see recommendation #3)
+        System.out.println("Fallback triggered for creating variant for product ID: {}. Reason: {}"+ product.getId()+ t.getMessage());
+
+        // Since we can't create the variant, we must throw an exception
+        // to roll back the transaction (see issue #2).
+        throw new ServiceUnavailableException("Inventory service is currently unavailable. The product variant could not be created.");
     }
 }

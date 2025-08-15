@@ -5,7 +5,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          public-key-location: classpath:keys/public.pem
+          public-key-location: classpath:${PUBLIC_KEY_LOCATION}
   cloud:
     consul:
       host: ${CONSUL_HOST:localhost}
@@ -37,5 +37,8 @@ spring:
         payment:
           address: static://payment-service:9090
           negotiationType: plaintext
+  threads:
+    virtual:
+      enabled: true
 server:
   port: 8086

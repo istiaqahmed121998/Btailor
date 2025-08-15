@@ -22,7 +22,7 @@ public class InventoryApplicationService {
      * Returns true if successful, false otherwise.
      */
     @Transactional
-    public boolean reserveStock(String variantSku, int quantity) {
+    public void reserveStock(String variantSku, int quantity) {
         InventoryItem item = repository.findByVariantSku(variantSku)
                 .orElseThrow(() -> new IllegalArgumentException("Variant SKU not found: " + variantSku));
 
@@ -30,7 +30,6 @@ public class InventoryApplicationService {
         if (reserved) {
             repository.save(item); // save only if mutated
         }
-        return reserved;
     }
 
     /**
